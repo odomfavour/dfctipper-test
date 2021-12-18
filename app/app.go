@@ -74,7 +74,7 @@ func (a app) startHandler(m *tb.Message) {
 	
 	📛 You will have the oppurtunity to earn money for performing simple task like retweeting.
 
-	✅ You can increase your earning by referring others to earn 100%% of all their earnings.
+	✅ You can increase your earning by referring others to earn 100%% of their earnings.
 	`, WELCOME_BONUS, refName)
 
 	if _, err := a.b.Send(m.Sender, fmt.Sprintf(welcomeMessage, m.Sender.FirstName)); err != nil {
