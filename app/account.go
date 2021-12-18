@@ -180,7 +180,7 @@ func (a app) referralLink(m *tb.Message) {
 	🆓 Get free DFC tokens in bot
 	
 	Claim Now👇
-	 http://t.me/defitipperbot?start=%d`, user.TelegramID)
+	 http://t.me/dfctippingbot?start=%d`, user.TelegramID)
 
 	if _, err := a.b.Send(m.Sender, message); err != nil {
 		log.Error("referralLink->send", err)
