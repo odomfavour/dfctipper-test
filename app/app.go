@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	WELCOME_BONUS = 50000
+	WELCOME_BONUS     = 50000
 	MINIMUMWITHDRAWAL = 500000000
 )
 
@@ -43,8 +43,7 @@ func Start(ctx context.Context, db Store, twitterClient *twitter.Client, b *tb.B
 	b.Handle(&btnReferralLink, app.referralLink)
 	b.Handle(&btnStartEarning, app.viewTweet)
 
-
-	go func ()  {
+	go func() {
 		for {
 			app.processReward()
 			time.Sleep(1 * time.Minute)
@@ -98,6 +97,7 @@ func (a app) startHandler(m *tb.Message) {
 		ID:         uuid.NewString(),
 		TelegramID: m.Sender.ID,
 		ReferralID: refId,
+		Balance:    WELCOME_BONUS,
 		FirstName:  m.Sender.FirstName,
 		LastName:   m.Sender.LastName,
 		Username:   m.Sender.Username,
