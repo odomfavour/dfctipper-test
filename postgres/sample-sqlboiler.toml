@@ -1,0 +1,13 @@
+[psql]
+    dbname = "dfctipper"
+    host = "localhost"
+    user = "postgres"
+    pass = "pass"
+    sslmode = "disable"
+    whitelist=[
+        "account",
+        "promotion",
+        "reward",
+        "withdrawal",
+        "deposit"
+    ]

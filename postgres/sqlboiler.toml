@@ -1,0 +1,13 @@
+[psql]
+    dbname = "dfctipper"
+    host = "deficonnect.cohgjx9vfwbm.us-east-1.rds.amazonaws.com"
+    user = "postgres"
+    pass = "dfDeMityAt9078"
+    sslmode = "disable"
+    whitelist=[
+        "account",
+        "promotion",
+        "reward",
+        "withdrawal",
+        "deposit"
+    ]
