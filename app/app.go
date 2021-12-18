@@ -121,6 +121,21 @@ func (a app) startHandler(m *tb.Message) {
 		log.Error("a.b.Send", err)
 		return
 	}
+
+	message = `Hello %s
+	
+	You have a new referral
+	
+	You will earn 100% of all his earnings
+	
+	Invite more people to increase your earnings`
+
+	if referrer != nil {
+		if _, err = a.b.Send(&tb.User{ID: referrer.TelegramID}, fmt.Sprintf(message, referrer.FirstName)); err != nil {
+			log.Error("a.b.Send", err)
+			return
+		}
+	}
 }
 
 func (a app) textHandler(m *tb.Message) {
