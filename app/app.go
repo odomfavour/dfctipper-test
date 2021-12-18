@@ -76,7 +76,7 @@ func (a app) startHandler(m *tb.Message) {
 	✅ Invite your friends to increase your earnings.
 	`, WELCOME_BONUS, refName)
 
-	if _, err := a.b.Send(m.Sender, fmt.Sprintf(welcomeMessage, m.Sender.FirstName)); err != nil {
+	if _, err := a.b.Send(m.Sender, welcomeMessage); err != nil {
 		log.Errorf("Cannot send message - %v", err)
 		return
 	}
@@ -126,7 +126,7 @@ func (a app) startHandler(m *tb.Message) {
 	
 	You have a new referral
 	
-	You will earn 100% of all his earnings
+	You will earn 100%% of all his earnings
 	
 	Invite more people to increase your earnings`
 
