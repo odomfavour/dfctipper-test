@@ -95,6 +95,23 @@ func (pg *PgDb) CreatePromotion(ctx context.Context, tweet string, number int, a
 	return promotion.Insert(ctx, pg.db, boil.Infer())
 }
 
+func (pg *PgDb) SetRewardCount(ctx context.Context, promotionID, count int) error {
+	colUp := models.M{
+		models.PromotionColumns.RewardCount: count,
+	}
+	_, err := models.Accounts(models.PromotionWhere.ID.EQ(promotionID)).UpdateAll(ctx, pg.db, colUp)
+	return err
+}
+
+func (pg *PgDb) SaveReward(ctx context.Context, promotionID int, userID string, reward int64) error {
+	pReward := models.Reward{
+		UserID: userID, PromotionID: promotionID, 
+		Date: time.Now().UTC().Unix(), Amount: int64(reward),
+	}
+
+	return pReward.Insert(ctx, pg.db, boil.Infer())
+}
+
 func (pg PgDb) UncompletedPromotion(ctx context.Context) (models.PromotionSlice, error) {
 	return models.Promotions(
 		qm.Where(fmt.Sprintf("%s < %s", models.PromotionColumns.RetweetCount, models.PromotionColumns.RewardCount)),

@@ -179,7 +179,7 @@ func (a app) processReward() {
 
 	for _, promotion := range uncompletedPromotions {
 		comps := strings.Split(promotion.TweetLink, "/status/")
-		id,_ := strconv.Atoi(comps[1])
+		id, _ := strconv.Atoi(comps[1])
 
 		retweets, _, err := a.twitterClient.Statuses.Retweets(int64(id), &twitter.StatusRetweetsParams{})
 		if err != nil {
@@ -201,22 +201,30 @@ func (a app) processReward() {
 				continue
 			}
 
-			if err := a.db.SetRewardCount(ctx, promotion.ID); err != nil {
+			if err := a.db.SetRewardCount(ctx, promotion.ID, promotion.RewardCount+1); err != nil {
 				log.Error("processReward->SetRewardCount", err)
 				continue
 			}
 
-			if err := a.sendReward(ctx, user, int64(promotion.RewardPerRetweet * 40) / 100); err != nil {
+			reward := int64(promotion.RewardPerRetweet*40) / 100
+
+			if err := a.db.SaveReward(ctx, promotion.ID, user.ID, reward); err != nil {
+				log.Error("sendReward->SaveReward", err)
+				return
+			}
+
+			if err := a.sendReward(ctx, user, reward); err != nil {
 				log.Error("processReward->sendReward", err)
 				continue
 			}
-			
+
 		}
 	}
 }
 
 func (a app) sendReward(ctx context.Context, user *models.Account, reward int64) error {
-	if err := a.db.SetBalance(ctx, user.ID, user.Balance + reward); err != nil {
+
+	if err := a.db.SetBalance(ctx, user.ID, user.Balance+reward); err != nil {
 		return err
 	}
 
@@ -241,11 +249,9 @@ func (a app) sendReward(ctx context.Context, user *models.Account, reward int64)
 		return err
 	}
 
-	if err := a.db.SetBalance(ctx, referral.ID, referral.Balance + reward); err != nil {
+	if err := a.db.SetBalance(ctx, referral.ID, referral.Balance+reward); err != nil {
 		return err
 	}
-
-
 
 	message = fmt.Sprintf(`Hello %s
 	
