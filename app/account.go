@@ -10,7 +10,26 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+func (a app) ensureAccount(m *tb.Message) bool {
+	ctx := context.Background()
+	user, err := a.currentUser(ctx, m)
+	if err != nil {
+		a.startHandler(m)
+		return false
+	}
+
+	if user.TwitterID == 0 {
+		a.startHandler(m)
+		return false
+	}
+
+	return true
+}
+
 func (a app) accountBalance(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	ctx := context.Background()
 	user, err := a.currentUser(ctx, m)
 	if err != nil {
@@ -31,6 +50,9 @@ func (a app) accountBalance(m *tb.Message) {
 }
 
 func (a app) viewWallet(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	ctx := context.Background()
 	user, err := a.currentUser(ctx, m)
 
@@ -57,6 +79,9 @@ func (a app) viewWallet(m *tb.Message) {
 }
 
 func (a app) setWalletMsg(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	if !strings.HasPrefix(strings.ToLower(m.Text), "0x") {
 		if _, err := a.b.Send(m.Sender, "Please send a valid DFC wallet"); err != nil {
 			a.sendSystemErrorMsg(m, err)
@@ -84,6 +109,9 @@ func (a app) setWalletMsg(m *tb.Message) {
 }
 
 func (a app) withdrawal(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	ctx := context.Background()
 	user, err := a.currentUser(ctx, m)
 	if err != nil {
@@ -120,6 +148,9 @@ func (a app) withdrawal(m *tb.Message) {
 }
 
 func (a app) makeWithdrawal(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	amount, _ := strconv.Atoi(m.Text)
 	if amount <= 0 {
 		msg := "Invalid amount. Amount must be a positive number with a period(.)"
@@ -171,6 +202,9 @@ func (a app) makeWithdrawal(m *tb.Message) {
 }
 
 func (a app) referralLink(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	ctx := context.Background()
 	user, err := a.currentUser(ctx, m)
 	if err != nil {

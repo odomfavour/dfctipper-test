@@ -38,12 +38,18 @@ func buildMenuItems(b *tb.Bot) {
 }
 
 func (a app) sendMainMenu(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	if _, err := a.b.Send(m.Sender, "Pick an item from the menu to continue", menu); err != nil {
 		log.Error("a.b.Send", err)
 	}
 }
 
 func (a app) myAccountMenu(m *tb.Message) {
+	if !a.ensureAccount(m) {
+		return
+	}
 	ctx := context.Background()
 
 	if err := a.db.SetCurrentStep(ctx, m.Sender.ID, NoStep); err != nil {
