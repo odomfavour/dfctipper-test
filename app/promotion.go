@@ -189,7 +189,7 @@ func (a app) processReward() {
 			continue
 		}
 
-		log.Info("processing %d retweets for %d", len(retweets), id)
+		log.Infof("processing %d retweets for %d", len(retweets), id)
 
 		for _, r := range retweets {
 			if promotion.RewardCount >= promotion.RetweetCount {
