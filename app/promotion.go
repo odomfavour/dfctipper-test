@@ -202,6 +202,8 @@ func (a app) processReward() {
 				continue
 			}
 
+			log.Infof("Rewarding %v",user)
+
 			if err != nil {
 				log.Error("processReward->UserByTwitterID", err)
 				continue
