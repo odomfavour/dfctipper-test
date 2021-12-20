@@ -194,7 +194,7 @@ func (a app) processReward() {
 		log.Infof("processing %d retweets for %d", len(retweets), id)
 
 		for _, r := range retweets {
-			if promotion.RewardCount >= promotion.RetweetCount {
+			if promotion.RetweetCount >= promotion.RewardCount {
 				break
 			}
 			user, err := a.db.UserByTwitterID(ctx, r.User.ID)
@@ -209,7 +209,7 @@ func (a app) processReward() {
 				continue
 			}
 
-			if err := a.db.SetRewardCount(ctx, promotion.ID, promotion.RewardCount+1); err != nil {
+			if err := a.db.SetRetweetCount(ctx, promotion.ID, promotion.RetweetCount+1); err != nil {
 				log.Error("processReward->SetRewardCount", err)
 				continue
 			}

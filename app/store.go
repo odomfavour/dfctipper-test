@@ -21,7 +21,7 @@ type Store interface {
 	CreatePromotion(ctx context.Context, tweet string, number int, amount int, userID string) error
 	AvailablePromotion(ctx context.Context, accID string) (models.PromotionSlice, error)
 	UncompletedPromotion(ctx context.Context) (models.PromotionSlice, error)
-	SetRewardCount(ctx context.Context, promotionID, count int) error
+	SetRetweetCount(ctx context.Context, promotionID, count int) error
 	SaveReward(ctx context.Context, promotionID int, userID string, reward int64) error
 
 	GetPendingWithdrawal(ctx context.Context, accID string) (*models.Withdrawal, error)
