@@ -5,7 +5,6 @@ drop table if exists reward;
 drop table if exists promotion;
 drop table if exists account;
 
-
 create table if not exists account (
     id VARCHAR(256) NOT NULL primary key,
     referral_id VARCHAR(256) NOT NULL,
@@ -13,7 +12,7 @@ create table if not exists account (
     username VARCHAR(256) NOT NULL,
     first_name VARCHAR(256) NOT NULL,
     last_name VARCHAR(256) NOT NULL,
-    twitter_id int8 NOT NULL unique,
+    twitter_id int8 NOT NULL,
     telegram_id int8 NOT NULL unique,
     join_at INT8 NOT NULL,
     wallet_address VARCHAR(256) NOT NULL,

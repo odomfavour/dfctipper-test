@@ -181,6 +181,8 @@ func (a app) processReward() {
 		comps := strings.Split(promotion.TweetLink, "/status/")
 		id, _ := strconv.Atoi(comps[1])
 
+		log.Infof("Proceesing promotion %d", id)
+
 		retweets, _, err := a.twitterClient.Statuses.Retweets(int64(id), &twitter.StatusRetweetsParams{})
 		if err != nil {
 			log.Error("a.twitterClient.Statuses.Retweets", err)

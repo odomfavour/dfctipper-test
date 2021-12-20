@@ -122,7 +122,8 @@ func (a app) withdrawal(m *tb.Message) {
 func (a app) makeWithdrawal(m *tb.Message) {
 	amount, _ := strconv.Atoi(m.Text)
 	if amount <= 0 {
-		if _, err := a.b.Send(m.Sender, "Invalid amount. Amount must be a positive number with a period(.)"); err != nil {
+		msg := "Invalid amount. Amount must be a positive number with a period(.)"
+		if _, err := a.b.Send(m.Sender, msg, backToMyAccountMenu); err != nil {
 			log.Error("makeWithdrawal")
 		}
 	}
@@ -136,15 +137,18 @@ func (a app) makeWithdrawal(m *tb.Message) {
 	}
 
 	if amount < MINIMUMWITHDRAWAL {
-		if _, err := a.b.Send(m.Sender, fmt.Sprintf("Invalid amount. Amount must be greater than %d", MINIMUMWITHDRAWAL)); err != nil {
+		msg := fmt.Sprintf("Invalid amount. Amount must be greater than %d", MINIMUMWITHDRAWAL)
+		if _, err := a.b.Send(m.Sender, msg, backToMyAccountMenu); err != nil {
 			log.Error("makeWithdrawal")
 		}
+		return
 	}
 
 	if user.Balance < int64(amount) {
-		if _, err := a.b.Send(m.Sender, "Insufficient Balance"); err != nil {
+		if _, err := a.b.Send(m.Sender, "Insufficient Balance", backToMyAccountMenu); err != nil {
 			log.Error("makeWithdrawal")
 		}
+		return
 	}
 
 	if err := a.db.MakeWithdrawalRequest(ctx, user.ID, int64(amount)); err != nil {
@@ -163,6 +167,7 @@ func (a app) makeWithdrawal(m *tb.Message) {
 		log.Error("makeWithdrawal->send", err)
 		return
 	}
+	a.myAccountMenu(m)
 }
 
 func (a app) referralLink(m *tb.Message) {
