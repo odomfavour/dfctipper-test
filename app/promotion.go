@@ -266,7 +266,7 @@ func (a app) sendReward(ctx context.Context, user *models.Account, reward int64)
 
 	message = fmt.Sprintf(`Hello %s
 	
-	You have eearned %d DFC from %s
+	You have earned %d DFC from %s
 	
 	Your account balance is %d
 	
