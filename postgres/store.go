@@ -146,3 +146,16 @@ func (pg *PgDb) AvailablePromotion(ctx context.Context, accID string) (models.Pr
 
 	return availablePromotions, nil
 }
+
+func (pg *PgDb) CanEarn(ctx context.Context, promotionID int, userID string) (bool, error) {
+	exists, err := models.Rewards(
+		models.RewardWhere.PromotionID.EQ(promotionID),
+		models.RewardWhere.UserID.EQ(userID),
+	).Exists(ctx, pg.db)
+
+	if err != nil {
+		return false, err
+	}
+
+	return !exists, nil
+}

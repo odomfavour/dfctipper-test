@@ -202,7 +202,10 @@ func (a app) processReward() {
 				continue
 			}
 
-			log.Infof("Rewarding %v",user)
+			// no double earning
+			if can, _ := a.db.CanEarn(ctx, promotion.ID, user.ID); !can {
+				continue
+			}
 
 			if err != nil {
 				log.Error("processReward->UserByTwitterID", err)
@@ -238,7 +241,7 @@ func (a app) sendReward(ctx context.Context, user *models.Account, reward int64)
 
 	message := fmt.Sprintf(`Hello %s
 	
-	You have eearned %d DFC for retweeting
+	You have earned %d DFC for retweeting
 	
 	Your account balance is %d
 	
