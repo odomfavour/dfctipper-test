@@ -203,4 +203,6 @@ func (a app) connectTwitter(m *tb.Message) {
 	if _, err = a.b.Send(m.Sender, message); err != nil {
 		log.Error("a.b.Send", err)
 	}
+
+	a.sendMainMenu(m)
 }
