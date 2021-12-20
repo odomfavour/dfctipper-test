@@ -99,7 +99,7 @@ func (pg *PgDb) SetRetweetCount(ctx context.Context, promotionID, count int) err
 	colUp := models.M{
 		models.PromotionColumns.RetweetCount: count,
 	}
-	_, err := models.Accounts(models.PromotionWhere.ID.EQ(promotionID)).UpdateAll(ctx, pg.db, colUp)
+	_, err := models.Promotions(models.PromotionWhere.ID.EQ(promotionID)).UpdateAll(ctx, pg.db, colUp)
 	return err
 }
 
