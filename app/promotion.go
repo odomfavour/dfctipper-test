@@ -272,7 +272,7 @@ func (a app) sendReward(ctx context.Context, user *models.Account, reward int64)
 	
 	Invite more friends and earn more`, referral.FirstName, reward, user.FirstName, referral.Balance+reward)
 
-	if _, err := a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
+	if _, err := a.b.Send(&tb.User{ID: referral.TelegramID}, message); err != nil {
 		log.Error("Send", err)
 	}
 
