@@ -46,7 +46,7 @@ func Start(ctx context.Context, db Store, twitterClient *twitter.Client, b *tb.B
 	go func() {
 		for {
 			app.processReward()
-			time.Sleep(10 * time.Second)
+			time.Sleep(30 * time.Second)
 		}
 	}()
 
