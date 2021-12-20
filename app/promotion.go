@@ -183,7 +183,9 @@ func (a app) processReward() {
 
 		log.Infof("Proceesing promotion %d", id)
 
-		retweets, _, err := a.twitterClient.Statuses.Retweets(int64(id), &twitter.StatusRetweetsParams{})
+		retweets, _, err := a.twitterClient.Statuses.Retweets(int64(id), &twitter.StatusRetweetsParams{
+			Count: 100,
+		})
 		if err != nil {
 			log.Error("a.twitterClient.Statuses.Retweets", err)
 			continue
