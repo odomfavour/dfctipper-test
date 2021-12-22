@@ -19,7 +19,7 @@ func (a app) ensureAccount(m *tb.Message) bool {
 	}
 
 	if user.TwitterID == 0 {
-		a.startHandler(m)
+		a.askforTwitter(m)
 		return false
 	}
 

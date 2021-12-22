@@ -110,6 +110,45 @@ func (a app) startHandler(m *tb.Message) {
 		return
 	}
 
+	a.askforTwitter(m)
+}
+
+func (a app) textHandler(m *tb.Message) {
+	ctx := context.Background()
+	currentStep, err := a.db.CurrentStep(ctx, m.Sender.ID)
+	if err != nil {
+		log.Error("textHandler", "currentStep", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	switch currentStep {
+	case ConnectTwitter:
+		a.connectTwitter(m)
+	case SETWALLET:
+		a.setWalletMsg(m)
+	case MAKEWITHDRAW:
+		a.makeWithdrawal(m)
+	case CREATEPROMOTION:
+		a.createPromotion(m)
+	default:
+		a.b.Send(m.Sender, "Please click on any of the items on the menu for your interaction")
+	}
+}
+
+func (a app) askforTwitter(m *tb.Message) {
+
+	ctx := context.Background()
+
+	refTelegramId, _ := strconv.Atoi(m.Payload)
+	referrer, err := a.db.UserByTelegramID(ctx, int64(refTelegramId))
+	if err != nil && err != sql.ErrNoRows {
+		log.Error("a.db.UserByTelegramID", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+	
+
 	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, ConnectTwitter); err != nil {
 		log.Error("a.db.SetCurrentStep", err)
 		a.sendSystemErrorMsg(m, err)
@@ -135,29 +174,6 @@ func (a app) startHandler(m *tb.Message) {
 			log.Error("a.b.Send", err)
 			return
 		}
-	}
-}
-
-func (a app) textHandler(m *tb.Message) {
-	ctx := context.Background()
-	currentStep, err := a.db.CurrentStep(ctx, m.Sender.ID)
-	if err != nil {
-		log.Error("textHandler", "currentStep", err)
-		a.sendSystemErrorMsg(m, err)
-		return
-	}
-
-	switch currentStep {
-	case ConnectTwitter:
-		a.connectTwitter(m)
-	case SETWALLET:
-		a.setWalletMsg(m)
-	case MAKEWITHDRAW:
-		a.makeWithdrawal(m)
-	case CREATEPROMOTION:
-		a.createPromotion(m)
-	default:
-		a.b.Send(m.Sender, "Please click on any of the items on the menu for your interaction")
 	}
 }
 
