@@ -213,7 +213,7 @@ func (a app) referralLink(m *tb.Message) {
 		return
 	}
 
-	message := fmt.Sprintf(`🎁 Defitipper give away on Telegram 🎁
+	message := fmt.Sprintf(`🎁 DFC give away on Telegram 🎁
 	🎈 Earn billions of DFC performing simple task 🎈
 	
 	🆓 Get free DFC tokens in bot
