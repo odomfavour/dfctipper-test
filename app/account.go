@@ -227,8 +227,8 @@ func (a app) referralLink(m *tb.Message) {
 		return
 	}
 
-	message = `♻️ Send this banner to your friends and get 100% of all their earnings
-	📛 Note: Fake Referral Not Pay`
+	message = `♻️ Share this link to invite your friends to earn more DFC for FREE
+	📛 Note: Fake referrals won't get paid`
 
 	if _, err := a.b.Send(m.Sender, message); err != nil {
 		log.Error("referralLink->Send", err)

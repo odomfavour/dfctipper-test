@@ -30,7 +30,7 @@ func (a app) viewTweet(m *tb.Message) {
 
 	if len(promotions) == 0 {
 		if _, err := a.b.Send(m.Sender,
-			"There are to promotions to view at the moment. Please check after a while", backToMyAccountMenu); err != nil {
+			"No promotion to view at the moment, check back later", backToMyAccountMenu); err != nil {
 			log.Error("viewTweet->send", err)
 			return
 		}
@@ -42,7 +42,7 @@ func (a app) viewTweet(m *tb.Message) {
 		Twitter link: %s
 
 		Possible earning: %d DFC
-		`, promotion.TweetLink, int(promotion.RewardPerRetweet*4/100))
+		`, promotion.TweetLink, int(promotion.RewardPerRetweet*40/100))
 
 		if _, err = a.b.Send(m.Sender, message); err != nil {
 			log.Error("a.b.Send", err)
