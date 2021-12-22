@@ -203,6 +203,14 @@ func (a app) connectTwitter(m *tb.Message) {
 		}
 	}
 
+	if _, err = a.db.UserByTwitterID(ctx, twitterAcc[0].ID); err == nil {
+		message := "Another account is using this twitter handle"
+		if _, err := a.b.Send(m.Sender, message); err != nil {
+			log.Error("a.b.Send", err)
+			return
+		}
+	}
+
 	if err := a.db.SetTwitterID(ctx, acc.ID, twitterAcc[0].ID); err != nil {
 		log.Error("SetTwitterID", err)
 		a.sendSystemErrorMsg(m, err)
