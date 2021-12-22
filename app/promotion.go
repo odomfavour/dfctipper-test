@@ -49,7 +49,7 @@ func (a app) viewTweet(m *tb.Message) {
 		}
 	}
 
-	if _, err := a.b.Send(m.Sender, "Retweet and earn", backToMyAccountMenu); err != nil {
+	if _, err := a.b.Send(m.Sender, "Retweet and earn", menu); err != nil {
 		log.Error("viewTweet->Send", err)
 	}
 }
