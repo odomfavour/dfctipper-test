@@ -11,6 +11,7 @@ type Store interface {
 	GetUser(ctx context.Context, id string) (*models.Account, error)
 	UserByTelegramID(ctx context.Context, telegramID int64) (*models.Account, error)
 	UserByTwitterID(ctx context.Context, twitterID int64) (*models.Account, error)
+	AllUserTelegram(ctx context.Context) (models.AccountSlice, error)
 	SetTwitterID(ctx context.Context, accID string, twitterID int64) error
 	SetWalletAddress(ctx context.Context, telegramId int64, wallet string) error
 	SetBalance(ctx context.Context, userID string, balance int64) error

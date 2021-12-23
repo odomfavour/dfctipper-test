@@ -166,6 +166,29 @@ func (a app) createPromotion(m *tb.Message) {
 	if _, err := a.b.Send(m.Sender, "Promotion created"); err != nil {
 		log.Error("createPromotion", err.Error())
 	}
+
+	go a.sendNewTweetNotification(tweet, amount)
+}
+
+func (a app) sendNewTweetNotification(tweet string, amount int) {
+	ctx := context.Background()
+	telegramInfo, err := a.db.AllUserTelegram(ctx)
+	if err != nil {
+		log.Errorf("a.db.AllUserTelegram, %v", err)
+		return
+	}
+
+	for _, user := range telegramInfo {
+		message := fmt.Sprintf(`
+		Twitter link: %s
+
+		Possible earning: %d DFC
+		`, tweet, int(amount*40/100))
+
+		if _, err = a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
+			log.Error("a.b.Send", err)
+		}
+	}
 }
 
 func (a app) processReward() {

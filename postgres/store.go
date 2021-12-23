@@ -18,6 +18,12 @@ func (pg *PgDb) GetUser(ctx context.Context, id string) (*models.Account, error)
 	return models.Accounts(models.AccountWhere.ID.EQ(id)).One(ctx, pg.db)
 }
 
+func (pg *PgDb) AllUserTelegram(ctx context.Context) (models.AccountSlice, error) {
+	return models.Accounts(
+		qm.Select(models.AccountColumns.TelegramID),
+	).All(ctx, pg.db)
+}
+
 func (pg *PgDb) UserByTelegramID(ctx context.Context, telegramID int64) (*models.Account, error) {
 	return models.Accounts(models.AccountWhere.TelegramID.EQ(int64(telegramID))).One(ctx, pg.db)
 }
