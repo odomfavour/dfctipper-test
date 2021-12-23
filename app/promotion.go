@@ -180,6 +180,8 @@ func (a app) sendNewTweetNotification(tweet string, amount int) {
 
 	for _, user := range telegramInfo {
 		message := fmt.Sprintf(`
+		New Tweet Notificcation
+		
 		Twitter link: %s
 
 		Possible earning: %d DFC
