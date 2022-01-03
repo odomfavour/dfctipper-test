@@ -228,5 +228,9 @@ func (a app) connectTwitter(m *tb.Message) {
 		log.Error("a.b.Send", err)
 	}
 
+	if err = a.db.IncreaseDownlines(ctx, acc.ReferralID); err != nil {
+		log.Error("a.db.IncreaseDownlines", err)
+	}
+
 	a.sendMainMenu(m)
 }

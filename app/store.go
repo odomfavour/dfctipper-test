@@ -15,6 +15,7 @@ type Store interface {
 	SetTwitterID(ctx context.Context, accID string, twitterID int64) error
 	SetWalletAddress(ctx context.Context, telegramId int64, wallet string) error
 	SetBalance(ctx context.Context, userID string, balance int64) error
+	IncreaseDownlines(ctx context.Context, accID string) error
 
 	SetCurrentStep(ctx context.Context, telegramID int64, step int) error
 	CurrentStep(ctx context.Context, telegramID int64) (int, error)

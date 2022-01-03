@@ -35,6 +35,7 @@ type Account struct {
 	WalletAddress  string `boil:"wallet_address" json:"wallet_address" toml:"wallet_address" yaml:"wallet_address"`
 	DepositAddress string `boil:"deposit_address" json:"deposit_address" toml:"deposit_address" yaml:"deposit_address"`
 	CurrentStep    int    `boil:"current_step" json:"current_step" toml:"current_step" yaml:"current_step"`
+	Downlines      int64  `boil:"downlines" json:"downlines" toml:"downlines" yaml:"downlines"`
 
 	R *accountR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L accountL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -53,6 +54,7 @@ var AccountColumns = struct {
 	WalletAddress  string
 	DepositAddress string
 	CurrentStep    string
+	Downlines      string
 }{
 	ID:             "id",
 	ReferralID:     "referral_id",
@@ -66,6 +68,7 @@ var AccountColumns = struct {
 	WalletAddress:  "wallet_address",
 	DepositAddress: "deposit_address",
 	CurrentStep:    "current_step",
+	Downlines:      "downlines",
 }
 
 var AccountTableColumns = struct {
@@ -81,6 +84,7 @@ var AccountTableColumns = struct {
 	WalletAddress  string
 	DepositAddress string
 	CurrentStep    string
+	Downlines      string
 }{
 	ID:             "account.id",
 	ReferralID:     "account.referral_id",
@@ -94,6 +98,7 @@ var AccountTableColumns = struct {
 	WalletAddress:  "account.wallet_address",
 	DepositAddress: "account.deposit_address",
 	CurrentStep:    "account.current_step",
+	Downlines:      "account.downlines",
 }
 
 // Generated where
@@ -180,6 +185,7 @@ var AccountWhere = struct {
 	WalletAddress  whereHelperstring
 	DepositAddress whereHelperstring
 	CurrentStep    whereHelperint
+	Downlines      whereHelperint64
 }{
 	ID:             whereHelperstring{field: "\"account\".\"id\""},
 	ReferralID:     whereHelperstring{field: "\"account\".\"referral_id\""},
@@ -193,6 +199,7 @@ var AccountWhere = struct {
 	WalletAddress:  whereHelperstring{field: "\"account\".\"wallet_address\""},
 	DepositAddress: whereHelperstring{field: "\"account\".\"deposit_address\""},
 	CurrentStep:    whereHelperint{field: "\"account\".\"current_step\""},
+	Downlines:      whereHelperint64{field: "\"account\".\"downlines\""},
 }
 
 // AccountRels is where relationship names are stored.
@@ -225,9 +232,9 @@ func (*accountR) NewStruct() *accountR {
 type accountL struct{}
 
 var (
-	accountAllColumns            = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step"}
+	accountAllColumns            = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step", "downlines"}
 	accountColumnsWithoutDefault = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step"}
-	accountColumnsWithDefault    = []string{}
+	accountColumnsWithDefault    = []string{"downlines"}
 	accountPrimaryKeyColumns     = []string{"id"}
 )
 

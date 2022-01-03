@@ -56,6 +56,12 @@ func (pg *PgDb) SetCurrentStep(ctx context.Context, telegramID int64, step int) 
 	return err
 }
 
+func (pg *PgDb) IncreaseDownlines(ctx context.Context, accID string) error {
+	statement := "update account set downlines = downlines + 1 where id = '" + accID + "'"
+	_, err := pg.db.ExecContext(ctx, statement)
+	return err
+}
+
 func (pg *PgDb) SetBalance(ctx context.Context, userID string, balance int64) error {
 	colUp := models.M{
 		models.AccountColumns.Balance: balance,

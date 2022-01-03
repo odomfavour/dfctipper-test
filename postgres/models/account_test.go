@@ -1040,7 +1040,7 @@ func testAccountsSelect(t *testing.T) {
 }
 
 var (
-	accountDBTypes = map[string]string{`ID`: `character varying`, `ReferralID`: `character varying`, `Balance`: `bigint`, `Username`: `character varying`, `FirstName`: `character varying`, `LastName`: `character varying`, `TwitterID`: `bigint`, `TelegramID`: `bigint`, `JoinAt`: `bigint`, `WalletAddress`: `character varying`, `DepositAddress`: `character varying`, `CurrentStep`: `integer`}
+	accountDBTypes = map[string]string{`ID`: `character varying`, `ReferralID`: `character varying`, `Balance`: `bigint`, `Username`: `character varying`, `FirstName`: `character varying`, `LastName`: `character varying`, `TwitterID`: `bigint`, `TelegramID`: `bigint`, `JoinAt`: `bigint`, `WalletAddress`: `character varying`, `DepositAddress`: `character varying`, `CurrentStep`: `integer`, `Downlines`: `bigint`}
 	_              = bytes.MinRead
 )
 
