@@ -17,7 +17,7 @@ import (
 
 const (
 	WELCOME_BONUS     = 50000
-	MINIMUMWITHDRAWAL = 500000000
+	MINIMUMWITHDRAWAL = 200000000
 )
 
 type app struct {
