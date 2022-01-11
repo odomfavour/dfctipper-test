@@ -28,9 +28,10 @@ type app struct {
 	config        BlockchainConfig
 }
 
-func Start(ctx context.Context, db Store, twitterClient *twitter.Client, b *tb.Bot) error {
+func Start(ctx context.Context, db Store, twitterClient *twitter.Client,
+	client *ethclient.Client, cfg BlockchainConfig, b *tb.Bot) error {
 
-	app := &app{db: db, twitterClient: twitterClient, b: b}
+	app := &app{db: db, twitterClient: twitterClient, b: b, client: client, config: cfg}
 
 	buildMenuItems(b)
 

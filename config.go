@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/ademuanthony/dfctipper/app"
 	"github.com/caarlos0/env"
 	flags "github.com/jessevdk/go-flags"
 )
@@ -60,6 +61,8 @@ type config struct {
 	AccessTokenSecret string `env:"ACCESS_TOKEN_SECRET"`
 
 	TelegramAuth string `env:"TELEGRAM_AUTH"`
+
+	app.BlockchainConfig
 }
 
 func defaultConfig() config {

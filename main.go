@@ -7,6 +7,7 @@ import (
 
 	"github.com/ademuanthony/dfctipper/app"
 	"github.com/ademuanthony/dfctipper/postgres"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
@@ -70,7 +71,15 @@ func main() {
 
 	ctx := context.Background()
 
-	app.Start(ctx, db, client, b)
+	ethClient, err := ethclient.Dial(cfg.BSCNode)
+	if err != nil {
+		log.Error("ethClient", err)
+		return
+	}
+
+	defer ethClient.Close()
+
+	app.Start(ctx, db, client, ethClient, cfg.BlockchainConfig, b)
 
 	log.Info("Bot starting...")
 
