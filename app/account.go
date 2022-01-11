@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 
@@ -274,8 +275,8 @@ func (a app) processWithdrawals() {
 			// }
 		}
 
-		amount := with.Amount
-		dfcAmount, err := a.convertDollarToDfc(ctx, amount)
+		amount := big.NewInt(with.Amount)
+		dfcAmount := amount.Mul(amount, big.NewInt(1e8))
 		if err != nil {
 			log.Errorf("processPaymentQueue->convertClubDollarToBnb %v", err)
 			continue
@@ -293,7 +294,7 @@ func (a app) processWithdrawals() {
 		
 		https://bscscan.com/tx/%s`
 
-		if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, fmt.Sprintf(message, account.FirstName, amount, txHash)); err != nil {
+		if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, fmt.Sprintf(message, account.FirstName, with.Amount, txHash)); err != nil {
 			log.Error("a.b.Send", err)
 		}
 

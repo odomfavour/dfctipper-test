@@ -94,10 +94,10 @@ func (m app) convertBusdDfc(ctx context.Context, amount *big.Int) (*big.Int, err
 	return dfcToDecimal(bigFloat), nil
 }
 
-func dfcToDecimal(eth *big.Float) *big.Int {
-	truncInt, _ := eth.Int(nil)
+func dfcToDecimal(dfc *big.Float) *big.Int {
+	truncInt, _ := dfc.Int(nil)
 	truncInt = new(big.Int).Mul(truncInt, big.NewInt(params.Ether))
-	fracStr := strings.Split(fmt.Sprintf("%.8f", eth), ".")[1]
+	fracStr := strings.Split(fmt.Sprintf("%.8f", dfc), ".")[1]
 	fracStr += strings.Repeat("0", 8-len(fracStr))
 	fracInt, _ := new(big.Int).SetString(fracStr, 10)
 	wei := new(big.Int).Add(truncInt, fracInt)
