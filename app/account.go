@@ -267,10 +267,11 @@ func (a app) processWithdrawals() {
 		}
 
 		if account.WalletAddress == "" {
-			message := "Unable to proccess your withdrawal request. Please set your wallet address from the Account menu"
-			if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, message, myAccountMenu); err != nil {
-				log.Error(err)
-			}
+			continue
+			// message := "Unable to proccess your withdrawal request. Please set your wallet address from the Account menu"
+			// if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, message, myAccountMenu); err != nil {
+			// 	log.Error(err)
+			// }
 		}
 
 		amount := with.Amount
