@@ -195,6 +195,11 @@ func (a app) makeWithdrawal(m *tb.Message) {
 		return
 	}
 
+	if err := a.db.SetBalance(ctx, user.ID, user.Balance-int64(amount)); err != nil {
+		log.Error("SetBalance", err)
+		return
+	}
+
 	if err := a.db.MakeWithdrawalRequest(ctx, user.ID, int64(amount)); err != nil {
 		log.Error("makeWithdrawal->currentUser", err)
 		a.sendSystemErrorMsg(m, err)
