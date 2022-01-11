@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ademuanthony/dfctipper/app"
 	"github.com/caarlos0/env"
 	flags "github.com/jessevdk/go-flags"
 )
@@ -62,7 +61,9 @@ type config struct {
 
 	TelegramAuth string `env:"TELEGRAM_AUTH"`
 
-	app.BlockchainConfig
+	BSCNode          string `long:"MAINNET_NODE_ADDRESS" env:"MAINNET_NODE_ADDRESS"`
+	MasterAddressKey string `long:"MASTER_ADDRESS_KEY" env:"MASTER_ADDRESS_KEY"`
+	MasterAddress    string `long:"MASTER_ADDRESS" env:"MASTER_ADDRESS"`
 }
 
 func defaultConfig() config {

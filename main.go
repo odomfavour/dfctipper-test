@@ -71,6 +71,7 @@ func main() {
 
 	ctx := context.Background()
 
+	log.Info("Nade address", cfg.BSCNode)
 	ethClient, err := ethclient.Dial(cfg.BSCNode)
 	if err != nil {
 		log.Error("ethClient", err)
@@ -79,7 +80,9 @@ func main() {
 
 	defer ethClient.Close()
 
-	app.Start(ctx, db, client, ethClient, cfg.BlockchainConfig, b)
+	app.Start(ctx, db, client, ethClient, app.BlockchainConfig{
+		BSCNode: cfg.BSCNode, MasterAddressKey: cfg.MasterAddressKey, MasterAddress: cfg.MasterAddress,
+	}, b)
 
 	log.Info("Bot starting...")
 
