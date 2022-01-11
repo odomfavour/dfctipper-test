@@ -63,6 +63,9 @@ func (a app) viewWallet(m *tb.Message) {
 	}
 
 	address := user.WalletAddress
+	if address == "" {
+		address = "empty"
+	}
 	if _, err := a.b.Send(m.Sender, fmt.Sprintf("Your wallet address is %s", address)); err != nil {
 		log.Error("viewWallet", err)
 	}
@@ -117,6 +120,15 @@ func (a app) withdrawal(m *tb.Message) {
 	if err != nil {
 		log.Error("makeWithdrawal->currentUser", err)
 		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	if user.WalletAddress == "" {
+		message := "Cannot proccess withdrwal"
+		if _, err := a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
+			log.Error(err)
+		}
+		a.viewWallet(m)
 		return
 	}
 
@@ -254,6 +266,13 @@ func (a app) processWithdrawals() {
 			continue
 		}
 
+		if account.WalletAddress == "" {
+			message := "Unable to proccess your withdrawal request. Please set your wallet address from the Account menu"
+			if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, message, myAccountMenu); err != nil {
+				log.Error(err)
+			}
+		}
+
 		amount := with.Amount
 		dfcAmount, err := a.convertDollarToDfc(ctx, amount)
 		if err != nil {
@@ -266,8 +285,6 @@ func (a app) processWithdrawals() {
 			log.Errorf("processPaymentQueue->m.transfer %v - %v", err, dfcAmount)
 			continue
 		}
-
-
 
 		message := `Hello %s
 
