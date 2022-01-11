@@ -28,5 +28,7 @@ type Store interface {
 	SaveReward(ctx context.Context, promotionID int, userID string, reward int64) error
 
 	GetPendingWithdrawal(ctx context.Context, accID string) (*models.Withdrawal, error)
+	AllGetPendingWithdrawal(ctx context.Context) (models.WithdrawalSlice, error)
 	MakeWithdrawalRequest(ctx context.Context, accID string, amount int64) error
+	UpdateTxHash(ctx context.Context, withID int, txHash string) error
 }

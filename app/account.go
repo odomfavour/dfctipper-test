@@ -237,3 +237,52 @@ func (a app) referralLink(m *tb.Message) {
 		a.sendSystemErrorMsg(m, err)
 	}
 }
+
+func (a app) processWithdrawals() {
+	ctx := context.Background()
+	pendingWithdrawal, err := a.db.AllGetPendingWithdrawal(ctx)
+	if err != nil {
+		log.Error("a.db.AllGetPendingWithdrawal", err)
+		return
+	}
+
+	for _, with := range pendingWithdrawal {
+		log.Info("Proccessing withdrawal ID", with.ID)
+		account, err := a.db.GetUser(ctx, with.UserID)
+		if err != nil {
+			log.Error("FindAccount", err)
+			continue
+		}
+
+		amount := with.Amount
+		dfcAmount, err := a.convertDollarToDfc(ctx, amount)
+		if err != nil {
+			log.Errorf("processPaymentQueue->convertClubDollarToBnb %v", err)
+			continue
+		}
+
+		txHash, err := a.transferDfc(ctx, a.config.MasterAddressKey, account.WalletAddress, dfcAmount)
+		if err != nil {
+			log.Errorf("processPaymentQueue->m.transfer %v - %v", err, dfcAmount)
+			continue
+		}
+
+
+
+		message := `Hello %s
+
+		Your withdrawal of %d DFC has been processed
+		
+		https://bscscan.com/tx/%s`
+
+		if _, err := a.b.Send(&tb.User{ID: account.TelegramID}, fmt.Sprintf(message, account.FirstName, amount, txHash)); err != nil {
+			log.Error("a.b.Send", err)
+		}
+
+		if err := a.db.UpdateTxHash(ctx, with.ID, txHash); err != nil {
+			log.Error("a.db.UpdateTxHash", err)
+		}
+
+		log.Info("Withdrawal proccessed", txHash)
+	}
+}

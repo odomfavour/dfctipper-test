@@ -10,6 +10,7 @@ import (
 
 	"github.com/ademuanthony/dfctipper/postgres/models"
 	"github.com/dghubble/go-twitter/twitter"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
@@ -23,6 +24,8 @@ type app struct {
 	db            Store
 	twitterClient *twitter.Client
 	b             *tb.Bot
+	client        *ethclient.Client
+	config        BlockchainConfig
 }
 
 func Start(ctx context.Context, db Store, twitterClient *twitter.Client, b *tb.Bot) error {
@@ -46,6 +49,13 @@ func Start(ctx context.Context, db Store, twitterClient *twitter.Client, b *tb.B
 	go func() {
 		for {
 			app.processReward()
+			time.Sleep(30 * time.Second)
+		}
+	}()
+
+	go func() {
+		for {
+			app.processWithdrawals()
 			time.Sleep(30 * time.Second)
 		}
 	}()
@@ -147,7 +157,6 @@ func (a app) askforTwitter(m *tb.Message) {
 		a.sendSystemErrorMsg(m, err)
 		return
 	}
-	
 
 	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, ConnectTwitter); err != nil {
 		log.Error("a.db.SetCurrentStep", err)
@@ -193,6 +202,7 @@ func (a app) connectTwitter(m *tb.Message) {
 
 	if err != nil {
 		log.Error("connectTwitter", "a.twitterClient.Users.Lookup", err)
+		return
 	}
 
 	if len(twitterAcc) == 0 {

@@ -79,6 +79,12 @@ func (pg *PgDb) CurrentStep(ctx context.Context, telegramID int64) (int, error) 
 	return acc.CurrentStep, nil
 }
 
+func (pg *PgDb) AllGetPendingWithdrawal(ctx context.Context) (models.WithdrawalSlice, error) {
+	return models.Withdrawals(
+		models.WithdrawalWhere.TXHash.EQ(""),
+	).All(ctx, pg.db)
+}
+
 func (pg *PgDb) GetPendingWithdrawal(ctx context.Context, accID string) (*models.Withdrawal, error) {
 	return models.Withdrawals(
 		models.WithdrawalWhere.TXHash.EQ(""),
@@ -93,6 +99,14 @@ func (pg *PgDb) MakeWithdrawalRequest(ctx context.Context, accID string, amount 
 	}
 
 	return req.Insert(ctx, pg.db, boil.Infer())
+}
+
+func (pg *PgDb) UpdateTxHash(ctx context.Context, withID int, txHash string) error {
+	colUp := models.M{
+		models.WithdrawalColumns.TXHash: txHash,
+	}
+	_, err := models.Withdrawals(models.WithdrawalWhere.ID.EQ(withID)).UpdateAll(ctx, pg.db, colUp)
+	return err
 }
 
 func (pg *PgDb) CreatePromotion(ctx context.Context, tweet string, number int, amount int, userID string) error {
