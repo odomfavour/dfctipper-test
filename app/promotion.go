@@ -179,6 +179,7 @@ func (a app) sendNewTweetNotification(tweet string, amount int) {
 	}
 
 	for _, user := range telegramInfo {
+		
 		message := fmt.Sprintf(`
 		New Tweet Notificcation
 		
@@ -187,11 +188,10 @@ func (a app) sendNewTweetNotification(tweet string, amount int) {
 		Possible earning: %d DFC
 		`, tweet, int(amount*40/100))
 
-		go func ()  {
-			if _, err = a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
-				log.Error("a.b.Send", err)
-			}
-		}()
+		if _, err = a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
+			log.Error("a.b.Send", err)
+		}
+		
 	}
 }
 
