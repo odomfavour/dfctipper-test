@@ -8,8 +8,112 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dghubble/go-twitter/twitter"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
+
+func (a app) askforTwitter(m *tb.Message) {
+
+	ctx := context.Background()
+
+	refTelegramId, _ := strconv.Atoi(m.Payload)
+	referrer, err := a.db.UserByTelegramID(ctx, int64(refTelegramId))
+	if err != nil && err != sql.ErrNoRows {
+		log.Error("a.db.UserByTelegramID", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, ConnectTwitter); err != nil {
+		log.Error("a.db.SetCurrentStep", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	message := "Let's connect your twitter account. Please enter your Twitter username"
+	if _, err = a.b.Send(m.Sender, message); err != nil {
+		log.Error("a.b.Send", err)
+		return
+	}
+
+	message = `Hello %s
+	
+	You have a new referral, %s
+	
+	You will earn 100%% of all his earnings
+	
+	Invite more people to increase your earnings`
+
+	if referrer != nil {
+		if _, err = a.b.Send(&tb.User{ID: referrer.TelegramID}, fmt.Sprintf(message, referrer.FirstName, m.Sender.FirstName)); err != nil {
+			log.Error("a.b.Send", err)
+			return
+		}
+	}
+}
+
+func (a app) connectTwitter(m *tb.Message) {
+	ctx := context.Background()
+	acc, err := a.currentUser(ctx, m)
+	if err != nil {
+		log.Error("connectTwitter", "a.currentUser", err)
+		return
+	}
+	username := strings.Trim(m.Text, "@")
+	twitterAcc, _, err := a.twitterClient.Users.Lookup(
+		&twitter.UserLookupParams{
+			ScreenName: []string{username},
+		},
+	)
+
+	if err != nil {
+		log.Error("connectTwitter", "a.twitterClient.Users.Lookup", err)
+		return
+	}
+
+	if len(twitterAcc) == 0 {
+		message := "Invalid Twitter username. Please try again"
+		if _, err := a.b.Send(m.Sender, message); err != nil {
+			log.Error("a.b.Send", err)
+			return
+		}
+	}
+
+	if _, err = a.db.UserByTwitterID(ctx, twitterAcc[0].ID); err == nil {
+		message := "Another account is using this twitter handle"
+		if _, err := a.b.Send(m.Sender, message); err != nil {
+			log.Error("a.b.Send", err)
+			return
+		}
+	}
+
+	if err := a.db.SetTwitterID(ctx, acc.ID, twitterAcc[0].ID); err != nil {
+		log.Error("SetTwitterID", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, NoStep); err != nil {
+		log.Error("connectTwitter", "setCurrentStep", err)
+		a.sendSystemErrorMsg(m, err)
+		return
+	}
+
+	message := "Congratulations! Your Twitter account has been linked successfully"
+	if _, err = a.b.Send(m.Sender, message); err != nil {
+		log.Error("a.b.Send", err)
+	}
+
+	if err = a.db.ActivateByTelegramID(ctx, acc.TelegramID); err != nil {
+		log.Error("a.db.Activate", err)
+	}
+
+	if err = a.db.IncreaseDownlines(ctx, acc.ReferralID); err != nil {
+		log.Error("a.db.IncreaseDownlines", err)
+	}
+
+	a.sendMainMenu(m)
+}
 
 func (a app) ensureAccount(m *tb.Message) bool {
 	ctx := context.Background()

@@ -14,13 +14,30 @@ func (pg *PgDb) CreatUser(ctx context.Context, account *models.Account) error {
 	return account.Insert(ctx, pg.db, boil.Infer())
 }
 
+func (pg *PgDb) ActivateByTelegramID(ctx context.Context, telegramID int64) error {
+	colUp := models.M{
+		models.AccountColumns.Active: 1,
+	}
+	_, err := models.Accounts(models.AccountWhere.TelegramID.EQ(telegramID)).UpdateAll(ctx, pg.db, colUp)
+	return err
+}
+
+func (pg *PgDb) DeactivateByTelegramID(ctx context.Context, telegramID int64) error {
+	colUp := models.M{
+		models.AccountColumns.Active: 0,
+	}
+	_, err := models.Accounts(models.AccountWhere.TelegramID.EQ(telegramID)).UpdateAll(ctx, pg.db, colUp)
+	return err
+}
+
 func (pg *PgDb) GetUser(ctx context.Context, id string) (*models.Account, error) {
 	return models.Accounts(models.AccountWhere.ID.EQ(id)).One(ctx, pg.db)
 }
 
-func (pg *PgDb) AllUserTelegram(ctx context.Context) (models.AccountSlice, error) {
+func (pg *PgDb) ActiveUsersTelegram(ctx context.Context) (models.AccountSlice, error) {
 	return models.Accounts(
-		qm.Select(models.AccountColumns.TelegramID),
+		models.AccountWhere.Active.EQ(1),
+		qm.Select(models.AccountColumns.ID, models.AccountColumns.TelegramID),
 	).All(ctx, pg.db)
 }
 
@@ -57,7 +74,7 @@ func (pg *PgDb) SetCurrentStep(ctx context.Context, telegramID int64, step int) 
 }
 
 func (pg *PgDb) IncreaseDownlines(ctx context.Context, accID string) error {
-	statement := "update account set downlines = downlines + 1 where id = '" + accID + "'"
+	statement := "update account set downlines = downlines + 1, contest_downline = contest_downline + 1 where id = '" + accID + "'"
 	_, err := pg.db.ExecContext(ctx, statement)
 	return err
 }
@@ -131,7 +148,7 @@ func (pg *PgDb) SetRetweetCount(ctx context.Context, promotionID, count int) err
 
 func (pg *PgDb) SaveReward(ctx context.Context, promotionID int, userID string, reward int64) error {
 	pReward := models.Reward{
-		UserID: userID, PromotionID: promotionID, 
+		UserID: userID, PromotionID: promotionID,
 		Date: time.Now().UTC().Unix(), Amount: int64(reward),
 	}
 

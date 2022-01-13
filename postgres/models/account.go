@@ -23,82 +23,92 @@ import (
 
 // Account is an object representing the database table.
 type Account struct {
-	ID             string `boil:"id" json:"id" toml:"id" yaml:"id"`
-	ReferralID     string `boil:"referral_id" json:"referral_id" toml:"referral_id" yaml:"referral_id"`
-	Balance        int64  `boil:"balance" json:"balance" toml:"balance" yaml:"balance"`
-	Username       string `boil:"username" json:"username" toml:"username" yaml:"username"`
-	FirstName      string `boil:"first_name" json:"first_name" toml:"first_name" yaml:"first_name"`
-	LastName       string `boil:"last_name" json:"last_name" toml:"last_name" yaml:"last_name"`
-	TwitterID      int64  `boil:"twitter_id" json:"twitter_id" toml:"twitter_id" yaml:"twitter_id"`
-	TelegramID     int64  `boil:"telegram_id" json:"telegram_id" toml:"telegram_id" yaml:"telegram_id"`
-	JoinAt         int64  `boil:"join_at" json:"join_at" toml:"join_at" yaml:"join_at"`
-	WalletAddress  string `boil:"wallet_address" json:"wallet_address" toml:"wallet_address" yaml:"wallet_address"`
-	DepositAddress string `boil:"deposit_address" json:"deposit_address" toml:"deposit_address" yaml:"deposit_address"`
-	CurrentStep    int    `boil:"current_step" json:"current_step" toml:"current_step" yaml:"current_step"`
-	Downlines      int64  `boil:"downlines" json:"downlines" toml:"downlines" yaml:"downlines"`
+	ID              string `boil:"id" json:"id" toml:"id" yaml:"id"`
+	ReferralID      string `boil:"referral_id" json:"referral_id" toml:"referral_id" yaml:"referral_id"`
+	Balance         int64  `boil:"balance" json:"balance" toml:"balance" yaml:"balance"`
+	Username        string `boil:"username" json:"username" toml:"username" yaml:"username"`
+	FirstName       string `boil:"first_name" json:"first_name" toml:"first_name" yaml:"first_name"`
+	LastName        string `boil:"last_name" json:"last_name" toml:"last_name" yaml:"last_name"`
+	TwitterID       int64  `boil:"twitter_id" json:"twitter_id" toml:"twitter_id" yaml:"twitter_id"`
+	TelegramID      int64  `boil:"telegram_id" json:"telegram_id" toml:"telegram_id" yaml:"telegram_id"`
+	JoinAt          int64  `boil:"join_at" json:"join_at" toml:"join_at" yaml:"join_at"`
+	WalletAddress   string `boil:"wallet_address" json:"wallet_address" toml:"wallet_address" yaml:"wallet_address"`
+	DepositAddress  string `boil:"deposit_address" json:"deposit_address" toml:"deposit_address" yaml:"deposit_address"`
+	CurrentStep     int    `boil:"current_step" json:"current_step" toml:"current_step" yaml:"current_step"`
+	Downlines       int64  `boil:"downlines" json:"downlines" toml:"downlines" yaml:"downlines"`
+	Active          int    `boil:"active" json:"active" toml:"active" yaml:"active"`
+	ContestDownline int    `boil:"contest_downline" json:"contest_downline" toml:"contest_downline" yaml:"contest_downline"`
 
 	R *accountR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L accountL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var AccountColumns = struct {
-	ID             string
-	ReferralID     string
-	Balance        string
-	Username       string
-	FirstName      string
-	LastName       string
-	TwitterID      string
-	TelegramID     string
-	JoinAt         string
-	WalletAddress  string
-	DepositAddress string
-	CurrentStep    string
-	Downlines      string
+	ID              string
+	ReferralID      string
+	Balance         string
+	Username        string
+	FirstName       string
+	LastName        string
+	TwitterID       string
+	TelegramID      string
+	JoinAt          string
+	WalletAddress   string
+	DepositAddress  string
+	CurrentStep     string
+	Downlines       string
+	Active          string
+	ContestDownline string
 }{
-	ID:             "id",
-	ReferralID:     "referral_id",
-	Balance:        "balance",
-	Username:       "username",
-	FirstName:      "first_name",
-	LastName:       "last_name",
-	TwitterID:      "twitter_id",
-	TelegramID:     "telegram_id",
-	JoinAt:         "join_at",
-	WalletAddress:  "wallet_address",
-	DepositAddress: "deposit_address",
-	CurrentStep:    "current_step",
-	Downlines:      "downlines",
+	ID:              "id",
+	ReferralID:      "referral_id",
+	Balance:         "balance",
+	Username:        "username",
+	FirstName:       "first_name",
+	LastName:        "last_name",
+	TwitterID:       "twitter_id",
+	TelegramID:      "telegram_id",
+	JoinAt:          "join_at",
+	WalletAddress:   "wallet_address",
+	DepositAddress:  "deposit_address",
+	CurrentStep:     "current_step",
+	Downlines:       "downlines",
+	Active:          "active",
+	ContestDownline: "contest_downline",
 }
 
 var AccountTableColumns = struct {
-	ID             string
-	ReferralID     string
-	Balance        string
-	Username       string
-	FirstName      string
-	LastName       string
-	TwitterID      string
-	TelegramID     string
-	JoinAt         string
-	WalletAddress  string
-	DepositAddress string
-	CurrentStep    string
-	Downlines      string
+	ID              string
+	ReferralID      string
+	Balance         string
+	Username        string
+	FirstName       string
+	LastName        string
+	TwitterID       string
+	TelegramID      string
+	JoinAt          string
+	WalletAddress   string
+	DepositAddress  string
+	CurrentStep     string
+	Downlines       string
+	Active          string
+	ContestDownline string
 }{
-	ID:             "account.id",
-	ReferralID:     "account.referral_id",
-	Balance:        "account.balance",
-	Username:       "account.username",
-	FirstName:      "account.first_name",
-	LastName:       "account.last_name",
-	TwitterID:      "account.twitter_id",
-	TelegramID:     "account.telegram_id",
-	JoinAt:         "account.join_at",
-	WalletAddress:  "account.wallet_address",
-	DepositAddress: "account.deposit_address",
-	CurrentStep:    "account.current_step",
-	Downlines:      "account.downlines",
+	ID:              "account.id",
+	ReferralID:      "account.referral_id",
+	Balance:         "account.balance",
+	Username:        "account.username",
+	FirstName:       "account.first_name",
+	LastName:        "account.last_name",
+	TwitterID:       "account.twitter_id",
+	TelegramID:      "account.telegram_id",
+	JoinAt:          "account.join_at",
+	WalletAddress:   "account.wallet_address",
+	DepositAddress:  "account.deposit_address",
+	CurrentStep:     "account.current_step",
+	Downlines:       "account.downlines",
+	Active:          "account.active",
+	ContestDownline: "account.contest_downline",
 }
 
 // Generated where
@@ -173,33 +183,37 @@ func (w whereHelperint) NIN(slice []int) qm.QueryMod {
 }
 
 var AccountWhere = struct {
-	ID             whereHelperstring
-	ReferralID     whereHelperstring
-	Balance        whereHelperint64
-	Username       whereHelperstring
-	FirstName      whereHelperstring
-	LastName       whereHelperstring
-	TwitterID      whereHelperint64
-	TelegramID     whereHelperint64
-	JoinAt         whereHelperint64
-	WalletAddress  whereHelperstring
-	DepositAddress whereHelperstring
-	CurrentStep    whereHelperint
-	Downlines      whereHelperint64
+	ID              whereHelperstring
+	ReferralID      whereHelperstring
+	Balance         whereHelperint64
+	Username        whereHelperstring
+	FirstName       whereHelperstring
+	LastName        whereHelperstring
+	TwitterID       whereHelperint64
+	TelegramID      whereHelperint64
+	JoinAt          whereHelperint64
+	WalletAddress   whereHelperstring
+	DepositAddress  whereHelperstring
+	CurrentStep     whereHelperint
+	Downlines       whereHelperint64
+	Active          whereHelperint
+	ContestDownline whereHelperint
 }{
-	ID:             whereHelperstring{field: "\"account\".\"id\""},
-	ReferralID:     whereHelperstring{field: "\"account\".\"referral_id\""},
-	Balance:        whereHelperint64{field: "\"account\".\"balance\""},
-	Username:       whereHelperstring{field: "\"account\".\"username\""},
-	FirstName:      whereHelperstring{field: "\"account\".\"first_name\""},
-	LastName:       whereHelperstring{field: "\"account\".\"last_name\""},
-	TwitterID:      whereHelperint64{field: "\"account\".\"twitter_id\""},
-	TelegramID:     whereHelperint64{field: "\"account\".\"telegram_id\""},
-	JoinAt:         whereHelperint64{field: "\"account\".\"join_at\""},
-	WalletAddress:  whereHelperstring{field: "\"account\".\"wallet_address\""},
-	DepositAddress: whereHelperstring{field: "\"account\".\"deposit_address\""},
-	CurrentStep:    whereHelperint{field: "\"account\".\"current_step\""},
-	Downlines:      whereHelperint64{field: "\"account\".\"downlines\""},
+	ID:              whereHelperstring{field: "\"account\".\"id\""},
+	ReferralID:      whereHelperstring{field: "\"account\".\"referral_id\""},
+	Balance:         whereHelperint64{field: "\"account\".\"balance\""},
+	Username:        whereHelperstring{field: "\"account\".\"username\""},
+	FirstName:       whereHelperstring{field: "\"account\".\"first_name\""},
+	LastName:        whereHelperstring{field: "\"account\".\"last_name\""},
+	TwitterID:       whereHelperint64{field: "\"account\".\"twitter_id\""},
+	TelegramID:      whereHelperint64{field: "\"account\".\"telegram_id\""},
+	JoinAt:          whereHelperint64{field: "\"account\".\"join_at\""},
+	WalletAddress:   whereHelperstring{field: "\"account\".\"wallet_address\""},
+	DepositAddress:  whereHelperstring{field: "\"account\".\"deposit_address\""},
+	CurrentStep:     whereHelperint{field: "\"account\".\"current_step\""},
+	Downlines:       whereHelperint64{field: "\"account\".\"downlines\""},
+	Active:          whereHelperint{field: "\"account\".\"active\""},
+	ContestDownline: whereHelperint{field: "\"account\".\"contest_downline\""},
 }
 
 // AccountRels is where relationship names are stored.
@@ -232,9 +246,9 @@ func (*accountR) NewStruct() *accountR {
 type accountL struct{}
 
 var (
-	accountAllColumns            = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step", "downlines"}
+	accountAllColumns            = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step", "downlines", "active", "contest_downline"}
 	accountColumnsWithoutDefault = []string{"id", "referral_id", "balance", "username", "first_name", "last_name", "twitter_id", "telegram_id", "join_at", "wallet_address", "deposit_address", "current_step"}
-	accountColumnsWithDefault    = []string{"downlines"}
+	accountColumnsWithDefault    = []string{"downlines", "active", "contest_downline"}
 	accountPrimaryKeyColumns     = []string{"id"}
 )
 

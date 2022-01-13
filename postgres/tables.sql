@@ -53,3 +53,6 @@ create table if not exists deposit (
     user_id VARCHAR(256) not null REFERENCES account(id),
     date int8 not null
 );
+
+alter table account add column active int not null default 1;
+alter table account add contest_downline int not null default 0;

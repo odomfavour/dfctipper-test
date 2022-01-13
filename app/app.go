@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ademuanthony/dfctipper/postgres/models"
@@ -37,15 +36,15 @@ func Start(ctx context.Context, db Store, twitterClient *twitter.Client,
 
 	b.Handle("/start", app.startHandler)
 	b.Handle("/ajah", app.startCreatePromotion)
-	b.Handle(tb.OnText, app.textHandler)
-	b.Handle(&btnMyAccount, app.myAccountMenu)
-	b.Handle(&btnBackToMenu, app.sendMainMenu)
-	b.Handle(&btnBackToMyAccount, app.myAccountMenu)
-	b.Handle(&btnAccountBalance, app.accountBalance)
-	b.Handle(&btnWallet, app.viewWallet)
-	b.Handle(&btnWithdraw, app.withdrawal)
-	b.Handle(&btnReferralLink, app.referralLink)
-	b.Handle(&btnStartEarning, app.viewTweet)
+	b.Handle(tb.OnText, app.wrapHandler(app.textHandler))
+	b.Handle(&btnMyAccount, app.wrapHandler(app.myAccountMenu))
+	b.Handle(&btnBackToMenu, app.wrapHandler(app.sendMainMenu))
+	b.Handle(&btnBackToMyAccount, app.wrapHandler(app.myAccountMenu))
+	b.Handle(&btnAccountBalance, app.wrapHandler(app.accountBalance))
+	b.Handle(&btnWallet, app.wrapHandler(app.viewWallet))
+	b.Handle(&btnWithdraw, app.wrapHandler(app.withdrawal))
+	b.Handle(&btnReferralLink, app.wrapHandler(app.referralLink))
+	b.Handle(&btnStartEarning, app.wrapHandler(app.viewTweet))
 
 	go func() {
 		for {
@@ -147,101 +146,14 @@ func (a app) textHandler(m *tb.Message) {
 	}
 }
 
-func (a app) askforTwitter(m *tb.Message) {
+type handlerFunc func (*tb.Message)
 
-	ctx := context.Background()
-
-	refTelegramId, _ := strconv.Atoi(m.Payload)
-	referrer, err := a.db.UserByTelegramID(ctx, int64(refTelegramId))
-	if err != nil && err != sql.ErrNoRows {
-		log.Error("a.db.UserByTelegramID", err)
-		a.sendSystemErrorMsg(m, err)
-		return
-	}
-
-	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, ConnectTwitter); err != nil {
-		log.Error("a.db.SetCurrentStep", err)
-		a.sendSystemErrorMsg(m, err)
-		return
-	}
-
-	message := "Let's connect your twitter account. Please enter your Twitter username"
-	if _, err = a.b.Send(m.Sender, message); err != nil {
-		log.Error("a.b.Send", err)
-		return
-	}
-
-	message = `Hello %s
-	
-	You have a new referral, %s
-	
-	You will earn 100%% of all his earnings
-	
-	Invite more people to increase your earnings`
-
-	if referrer != nil {
-		if _, err = a.b.Send(&tb.User{ID: referrer.TelegramID}, fmt.Sprintf(message, referrer.FirstName, m.Sender.FirstName)); err != nil {
-			log.Error("a.b.Send", err)
-			return
+func (a app) wrapHandler(f handlerFunc) interface{} {
+	return func (m *tb.Message)  {
+		ctx := context.Background()
+		if err := a.db.ActivateByTelegramID(ctx, m.Sender.ID); err != nil {
+			log.Error("a.db.ActivateByTelegramID", err)
 		}
+		f(m)
 	}
-}
-
-func (a app) connectTwitter(m *tb.Message) {
-	ctx := context.Background()
-	acc, err := a.currentUser(ctx, m)
-	if err != nil {
-		log.Error("connectTwitter", "a.currentUser", err)
-		return
-	}
-	username := strings.Trim(m.Text, "@")
-	twitterAcc, _, err := a.twitterClient.Users.Lookup(
-		&twitter.UserLookupParams{
-			ScreenName: []string{username},
-		},
-	)
-
-	if err != nil {
-		log.Error("connectTwitter", "a.twitterClient.Users.Lookup", err)
-		return
-	}
-
-	if len(twitterAcc) == 0 {
-		message := "Invalid Twitter username. Please try again"
-		if _, err := a.b.Send(m.Sender, message); err != nil {
-			log.Error("a.b.Send", err)
-			return
-		}
-	}
-
-	if _, err = a.db.UserByTwitterID(ctx, twitterAcc[0].ID); err == nil {
-		message := "Another account is using this twitter handle"
-		if _, err := a.b.Send(m.Sender, message); err != nil {
-			log.Error("a.b.Send", err)
-			return
-		}
-	}
-
-	if err := a.db.SetTwitterID(ctx, acc.ID, twitterAcc[0].ID); err != nil {
-		log.Error("SetTwitterID", err)
-		a.sendSystemErrorMsg(m, err)
-		return
-	}
-
-	if err = a.db.SetCurrentStep(ctx, m.Sender.ID, NoStep); err != nil {
-		log.Error("connectTwitter", "setCurrentStep", err)
-		a.sendSystemErrorMsg(m, err)
-		return
-	}
-
-	message := "Congratulations! Your Twitter account has been linked successfully"
-	if _, err = a.b.Send(m.Sender, message); err != nil {
-		log.Error("a.b.Send", err)
-	}
-
-	if err = a.db.IncreaseDownlines(ctx, acc.ReferralID); err != nil {
-		log.Error("a.db.IncreaseDownlines", err)
-	}
-
-	a.sendMainMenu(m)
 }

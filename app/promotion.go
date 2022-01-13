@@ -172,14 +172,14 @@ func (a app) createPromotion(m *tb.Message) {
 
 func (a app) sendNewTweetNotification(tweet string, amount int) {
 	ctx := context.Background()
-	telegramInfo, err := a.db.AllUserTelegram(ctx)
+	telegramInfo, err := a.db.ActiveUsersTelegram(ctx)
 	if err != nil {
 		log.Errorf("a.db.AllUserTelegram, %v", err)
 		return
 	}
 
 	for i, user := range telegramInfo {
-		
+
 		message := fmt.Sprintf(`
 		New Tweet Notificcation
 		
@@ -189,13 +189,18 @@ func (a app) sendNewTweetNotification(tweet string, amount int) {
 		`, tweet, int(amount*40/100))
 
 		if _, err = a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
+			if strings.Contains(err.Error(), "bot was blocked by the user (401)") {
+				if err = a.db.DeactivateByTelegramID(ctx, user.TelegramID); err != nil {
+					log.Error("a.db.Activate", err)
+				}
+			}
 			log.Error("a.b.Send", err)
 		}
 
 		if i%100 == 0 {
 			log.Info("notified", i)
 		}
-		
+
 	}
 }
 
