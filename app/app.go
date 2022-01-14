@@ -71,6 +71,15 @@ func (a app) startHandler(m *tb.Message) {
 
 	ctx := context.Background()
 
+	if acc, err := a.db.UserByTelegramID(ctx, m.Sender.ID); err == nil {
+		if acc.TwitterID > 0 {
+			a.sendMainMenu(m)
+		} else {
+			a.askforTwitter(m)
+		}
+		return
+	}
+
 	refTelegramId, _ := strconv.Atoi(m.Payload)
 	refName := "None"
 	refId := ""
@@ -150,10 +159,10 @@ func (a app) textHandler(m *tb.Message) {
 	}
 }
 
-type handlerFunc func (*tb.Message)
+type handlerFunc func(*tb.Message)
 
 func (a app) wrapHandler(f handlerFunc) interface{} {
-	return func (m *tb.Message)  {
+	return func(m *tb.Message) {
 		ctx := context.Background()
 		if err := a.db.ActivateByTelegramID(ctx, m.Sender.ID); err != nil {
 			log.Error("a.db.ActivateByTelegramID", err)
