@@ -38,13 +38,17 @@ func Start(ctx context.Context, db Store, twitterClient *twitter.Client,
 	b.Handle("/ajah", app.startCreatePromotion)
 	b.Handle(tb.OnText, app.wrapHandler(app.textHandler))
 	b.Handle(&btnMyAccount, app.wrapHandler(app.myAccountMenu))
+	b.Handle(&btnSettings, app.wrapHandler(app.mySettingMenu))
 	b.Handle(&btnBackToMenu, app.wrapHandler(app.sendMainMenu))
 	b.Handle(&btnBackToMyAccount, app.wrapHandler(app.myAccountMenu))
+	b.Handle(&btnBackToMySetting, app.wrapHandler(app.mySettingMenu))
 	b.Handle(&btnAccountBalance, app.wrapHandler(app.accountBalance))
-	b.Handle(&btnWallet, app.wrapHandler(app.viewWallet))
 	b.Handle(&btnWithdraw, app.wrapHandler(app.withdrawal))
 	b.Handle(&btnReferralLink, app.wrapHandler(app.referralLink))
 	b.Handle(&btnStartEarning, app.wrapHandler(app.viewTweet))
+
+	b.Handle(&btnWallet, app.wrapHandler(app.viewWallet))
+	b.Handle(&btnTwitter, app.wrapHandler(app.askforTwitter))
 
 	go func() {
 		for {

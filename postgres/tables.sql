@@ -1,4 +1,3 @@
-drop table if exists user_step;
 drop table if exists deposit;
 drop table if exists withdrawal;
 drop table if exists reward;
@@ -55,4 +54,5 @@ create table if not exists deposit (
 );
 
 alter table account add column active int not null default 1;
+alter table account add downlines int not null default 0;
 alter table account add contest_downline int not null default 0;

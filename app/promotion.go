@@ -190,7 +190,7 @@ func (a app) sendNewTweetNotification(tweet string, amount int) {
 
 		if _, err = a.b.Send(&tb.User{ID: user.TelegramID}, message); err != nil {
 			log.Error("a.b.Send", err)
-			if strings.Contains(err.Error(), "bot was blocked by the user (401)") {
+			if strings.Contains(err.Error(), "(401)") {
 				if err = a.db.DeactivateByTelegramID(ctx, user.TelegramID); err != nil {
 					log.Error("a.db.Activate", err)
 				}

@@ -79,10 +79,12 @@ func (a app) connectTwitter(m *tb.Message) {
 		}
 	}
 
-	if _, err = a.db.UserByTwitterID(ctx, twitterAcc[0].ID); err == nil {
-		message := "Another account is using this twitter handle"
-		if _, err := a.b.Send(m.Sender, message); err != nil {
-			log.Error("a.b.Send", err)
+	if otherUser, err := a.db.UserByTwitterID(ctx, twitterAcc[0].ID); err == nil {
+		if otherUser.ID != acc.ID {
+			message := "Another account is using this twitter handle"
+			if _, err := a.b.Send(m.Sender, message); err != nil {
+				log.Error("a.b.Send", err)
+			}
 			return
 		}
 	}
@@ -213,7 +215,7 @@ func (a app) setWalletMsg(m *tb.Message) {
 		return
 	}
 
-	a.myAccountMenu(m)
+	a.mySettingMenu(m)
 }
 
 func (a app) withdrawal(m *tb.Message) {
