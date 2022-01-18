@@ -25,7 +25,7 @@ type Store interface {
 	CreatePromotion(ctx context.Context, tweet string, number int, amount int, userID string) error
 	AvailablePromotion(ctx context.Context, accID string) (models.PromotionSlice, error)
 	UncompletedPromotion(ctx context.Context) (models.PromotionSlice, error)
-	SetRetweetCount(ctx context.Context, promotionID, count int) error
+	IncreaseRetweetCount(ctx context.Context, promotionID, count int) error
 	CanEarn(ctx context.Context, promotionID int, userID string) (bool, error)
 	SaveReward(ctx context.Context, promotionID int, userID string, reward int64) error
 

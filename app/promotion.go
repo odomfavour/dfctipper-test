@@ -248,7 +248,7 @@ func (a app) processReward() {
 				continue
 			}
 
-			if err := a.db.SetRetweetCount(ctx, promotion.ID, promotion.RetweetCount+1); err != nil {
+			if err := a.db.IncreaseRetweetCount(ctx, promotion.ID, promotion.RetweetCount+1); err != nil {
 				log.Error("processReward->SetRetweetCount", err)
 				continue
 			}

@@ -138,11 +138,9 @@ func (pg *PgDb) CreatePromotion(ctx context.Context, tweet string, number int, a
 	return promotion.Insert(ctx, pg.db, boil.Infer())
 }
 
-func (pg *PgDb) SetRetweetCount(ctx context.Context, promotionID, count int) error {
-	colUp := models.M{
-		models.PromotionColumns.RetweetCount: count,
-	}
-	_, err := models.Promotions(models.PromotionWhere.ID.EQ(promotionID)).UpdateAll(ctx, pg.db, colUp)
+func (pg *PgDb) IncreaseRetweetCount(ctx context.Context, promotionID, count int) error {
+	statement := "update promotion set retweet_count = retweet_count + 1 where id = $1"
+	_, err := pg.db.ExecContext(ctx, statement, promotionID)
 	return err
 }
 
