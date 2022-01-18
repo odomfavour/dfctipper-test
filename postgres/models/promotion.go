@@ -93,17 +93,20 @@ var PromotionWhere = struct {
 
 // PromotionRels is where relationship names are stored.
 var PromotionRels = struct {
-	Creator string
-	Rewards string
+	Creator        string
+	PromotionTasks string
+	Rewards        string
 }{
-	Creator: "Creator",
-	Rewards: "Rewards",
+	Creator:        "Creator",
+	PromotionTasks: "PromotionTasks",
+	Rewards:        "Rewards",
 }
 
 // promotionR is where relationships are stored.
 type promotionR struct {
-	Creator *Account    `boil:"Creator" json:"Creator" toml:"Creator" yaml:"Creator"`
-	Rewards RewardSlice `boil:"Rewards" json:"Rewards" toml:"Rewards" yaml:"Rewards"`
+	Creator        *Account           `boil:"Creator" json:"Creator" toml:"Creator" yaml:"Creator"`
+	PromotionTasks PromotionTaskSlice `boil:"PromotionTasks" json:"PromotionTasks" toml:"PromotionTasks" yaml:"PromotionTasks"`
+	Rewards        RewardSlice        `boil:"Rewards" json:"Rewards" toml:"Rewards" yaml:"Rewards"`
 }
 
 // NewStruct creates a new relationship struct
@@ -226,6 +229,27 @@ func (o *Promotion) Creator(mods ...qm.QueryMod) accountQuery {
 	return query
 }
 
+// PromotionTasks retrieves all the promotion_task's PromotionTasks with an executor.
+func (o *Promotion) PromotionTasks(mods ...qm.QueryMod) promotionTaskQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"promotion_task\".\"promotion_id\"=?", o.ID),
+	)
+
+	query := PromotionTasks(queryMods...)
+	queries.SetFrom(query.Query, "\"promotion_task\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"promotion_task\".*"})
+	}
+
+	return query
+}
+
 // Rewards retrieves all the reward's Rewards with an executor.
 func (o *Promotion) Rewards(mods ...qm.QueryMod) rewardQuery {
 	var queryMods []qm.QueryMod
@@ -335,6 +359,97 @@ func (promotionL) LoadCreator(ctx context.Context, e boil.ContextExecutor, singu
 					foreign.R = &accountR{}
 				}
 				foreign.R.CreatorPromotions = append(foreign.R.CreatorPromotions, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadPromotionTasks allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (promotionL) LoadPromotionTasks(ctx context.Context, e boil.ContextExecutor, singular bool, maybePromotion interface{}, mods queries.Applicator) error {
+	var slice []*Promotion
+	var object *Promotion
+
+	if singular {
+		object = maybePromotion.(*Promotion)
+	} else {
+		slice = *maybePromotion.(*[]*Promotion)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &promotionR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &promotionR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`promotion_task`),
+		qm.WhereIn(`promotion_task.promotion_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load promotion_task")
+	}
+
+	var resultSlice []*PromotionTask
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice promotion_task")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on promotion_task")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for promotion_task")
+	}
+
+	if singular {
+		object.R.PromotionTasks = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &promotionTaskR{}
+			}
+			foreign.R.Promotion = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.PromotionID {
+				local.R.PromotionTasks = append(local.R.PromotionTasks, foreign)
+				if foreign.R == nil {
+					foreign.R = &promotionTaskR{}
+				}
+				foreign.R.Promotion = local
 				break
 			}
 		}
@@ -478,6 +593,59 @@ func (o *Promotion) SetCreator(ctx context.Context, exec boil.ContextExecutor, i
 		related.R.CreatorPromotions = append(related.R.CreatorPromotions, o)
 	}
 
+	return nil
+}
+
+// AddPromotionTasks adds the given related objects to the existing relationships
+// of the promotion, optionally inserting them as new records.
+// Appends related to o.R.PromotionTasks.
+// Sets related.R.Promotion appropriately.
+func (o *Promotion) AddPromotionTasks(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*PromotionTask) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.PromotionID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"promotion_task\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"promotion_id"}),
+				strmangle.WhereClause("\"", "\"", 2, promotionTaskPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.PromotionID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &promotionR{
+			PromotionTasks: related,
+		}
+	} else {
+		o.R.PromotionTasks = append(o.R.PromotionTasks, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &promotionTaskR{
+				Promotion: o,
+			}
+		} else {
+			rel.R.Promotion = o
+		}
+	}
 	return nil
 }
 

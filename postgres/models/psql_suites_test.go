@@ -12,6 +12,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("Promotions", testPromotionsUpsert)
 
+	t.Run("PromotionTasks", testPromotionTasksUpsert)
+
 	t.Run("Rewards", testRewardsUpsert)
 
 	t.Run("Withdrawals", testWithdrawalsUpsert)

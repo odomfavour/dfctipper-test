@@ -9,5 +9,6 @@
         "promotion",
         "reward",
         "withdrawal",
-        "deposit"
+        "deposit",
+        "promotion_task"
     ]
