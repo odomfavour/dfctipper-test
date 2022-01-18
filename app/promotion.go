@@ -238,13 +238,13 @@ func (a app) processReward() {
 				continue
 			}
 
-			// no double earning
-			if can, _ := a.db.CanEarn(ctx, promotion.ID, user.ID); !can {
+			if err != nil {
+				log.Error("processReward->UserByTwitterID", err)
 				continue
 			}
 
-			if err != nil {
-				log.Error("processReward->UserByTwitterID", err)
+			// no double earning
+			if can, _ := a.db.CanEarn(ctx, promotion.ID, user.ID); !can {
 				continue
 			}
 
