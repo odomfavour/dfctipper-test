@@ -28,16 +28,12 @@ func (a app) viewTweet(m *tb.Message) {
 		return
 	}
 
-	if len(promotions) == 0 {
-		if _, err := a.b.Send(m.Sender,
-			"No promotion to view at the moment, check back later", backToMyAccountMenu); err != nil {
-			log.Error("viewTweet->send", err)
-			return
-		}
-		return
-	}
+	var sent bool
 
 	for _, promotion := range promotions {
+		if can, _ := a.db.CanEarn(ctx, promotion.ID, acc.ID); !can {
+			continue
+		}
 		message := fmt.Sprintf(`
 		Twitter link: %s
 
@@ -47,11 +43,24 @@ func (a app) viewTweet(m *tb.Message) {
 		if _, err = a.b.Send(m.Sender, message); err != nil {
 			log.Error("a.b.Send", err)
 		}
+		sent = true
 	}
 
-	if _, err := a.b.Send(m.Sender, "Retweet and earn", backToMyAccountMenu); err != nil {
-		log.Error("viewTweet->Send", err)
+	if sent {
+		if _, err := a.b.Send(m.Sender, "Retweet and earn", backToMyAccountMenu); err != nil {
+			log.Error("viewTweet->Send", err)
+		}
+	} else {
+		if len(promotions) == 0 {
+			if _, err := a.b.Send(m.Sender,
+				"No promotion to view at the moment, check back later", backToMyAccountMenu); err != nil {
+				log.Error("viewTweet->send", err)
+				return
+			}
+			return
+		}
 	}
+	
 }
 
 func (a app) startCreatePromotion(m *tb.Message) {
