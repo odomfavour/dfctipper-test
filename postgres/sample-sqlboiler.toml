@@ -5,9 +5,10 @@
     pass = "pass"
     sslmode = "disable"
     whitelist=[
-        "account",
+       "account",
         "promotion",
         "reward",
         "withdrawal",
-        "deposit"
+        "deposit",
+        "promotion_task"
     ]

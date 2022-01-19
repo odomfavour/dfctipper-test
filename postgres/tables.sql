@@ -29,6 +29,13 @@ create table if not exists promotion (
     retweet_count INT NOT NULL
 );
 
+create table if not exists promotion_task (
+    id serial not null primary key,
+    promotion_id int not null REFERENCES promotion(id),
+    task_type VARCHAR(50) not null,
+    task_info VARCHAR(500) not null
+);
+
 create table if not exists reward (
     id serial not null primary key,
     user_id VARCHAR(256) not null REFERENCES account(id),
@@ -52,6 +59,18 @@ create table if not exists deposit (
     user_id VARCHAR(256) not null REFERENCES account(id),
     date int8 not null
 );
+
+create table if not exists twitter_ugc (
+    id serial NOT NULL primary key,
+    creator_id VARCHAR(256) NOT NULL REFERENCES account(id),
+    created_at INT8 NOT NULL,
+    reward_count INT NOT NULL,
+    reward_per_tweet INT NOT NULL,
+    tweet_count INT NOT NULL,
+    hashtag VARCHAR(500) NOT NULL,
+    mentions VARCHAR(500) NOT NULL,
+    key_phrase VARCHAR(100) NOT NULL
+)
 
 alter table account add column active int not null default 1;
 alter table account add downlines int not null default 0;

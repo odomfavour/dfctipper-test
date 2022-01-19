@@ -15,6 +15,7 @@ func TestParent(t *testing.T) {
 	t.Run("Accounts", testAccounts)
 	t.Run("Deposits", testDeposits)
 	t.Run("Promotions", testPromotions)
+	t.Run("PromotionTasks", testPromotionTasks)
 	t.Run("Rewards", testRewards)
 	t.Run("Withdrawals", testWithdrawals)
 }
@@ -23,6 +24,7 @@ func TestDelete(t *testing.T) {
 	t.Run("Accounts", testAccountsDelete)
 	t.Run("Deposits", testDepositsDelete)
 	t.Run("Promotions", testPromotionsDelete)
+	t.Run("PromotionTasks", testPromotionTasksDelete)
 	t.Run("Rewards", testRewardsDelete)
 	t.Run("Withdrawals", testWithdrawalsDelete)
 }
@@ -31,6 +33,7 @@ func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsQueryDeleteAll)
 	t.Run("Deposits", testDepositsQueryDeleteAll)
 	t.Run("Promotions", testPromotionsQueryDeleteAll)
+	t.Run("PromotionTasks", testPromotionTasksQueryDeleteAll)
 	t.Run("Rewards", testRewardsQueryDeleteAll)
 	t.Run("Withdrawals", testWithdrawalsQueryDeleteAll)
 }
@@ -39,6 +42,7 @@ func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsSliceDeleteAll)
 	t.Run("Deposits", testDepositsSliceDeleteAll)
 	t.Run("Promotions", testPromotionsSliceDeleteAll)
+	t.Run("PromotionTasks", testPromotionTasksSliceDeleteAll)
 	t.Run("Rewards", testRewardsSliceDeleteAll)
 	t.Run("Withdrawals", testWithdrawalsSliceDeleteAll)
 }
@@ -47,6 +51,7 @@ func TestExists(t *testing.T) {
 	t.Run("Accounts", testAccountsExists)
 	t.Run("Deposits", testDepositsExists)
 	t.Run("Promotions", testPromotionsExists)
+	t.Run("PromotionTasks", testPromotionTasksExists)
 	t.Run("Rewards", testRewardsExists)
 	t.Run("Withdrawals", testWithdrawalsExists)
 }
@@ -55,6 +60,7 @@ func TestFind(t *testing.T) {
 	t.Run("Accounts", testAccountsFind)
 	t.Run("Deposits", testDepositsFind)
 	t.Run("Promotions", testPromotionsFind)
+	t.Run("PromotionTasks", testPromotionTasksFind)
 	t.Run("Rewards", testRewardsFind)
 	t.Run("Withdrawals", testWithdrawalsFind)
 }
@@ -63,6 +69,7 @@ func TestBind(t *testing.T) {
 	t.Run("Accounts", testAccountsBind)
 	t.Run("Deposits", testDepositsBind)
 	t.Run("Promotions", testPromotionsBind)
+	t.Run("PromotionTasks", testPromotionTasksBind)
 	t.Run("Rewards", testRewardsBind)
 	t.Run("Withdrawals", testWithdrawalsBind)
 }
@@ -71,6 +78,7 @@ func TestOne(t *testing.T) {
 	t.Run("Accounts", testAccountsOne)
 	t.Run("Deposits", testDepositsOne)
 	t.Run("Promotions", testPromotionsOne)
+	t.Run("PromotionTasks", testPromotionTasksOne)
 	t.Run("Rewards", testRewardsOne)
 	t.Run("Withdrawals", testWithdrawalsOne)
 }
@@ -79,6 +87,7 @@ func TestAll(t *testing.T) {
 	t.Run("Accounts", testAccountsAll)
 	t.Run("Deposits", testDepositsAll)
 	t.Run("Promotions", testPromotionsAll)
+	t.Run("PromotionTasks", testPromotionTasksAll)
 	t.Run("Rewards", testRewardsAll)
 	t.Run("Withdrawals", testWithdrawalsAll)
 }
@@ -87,6 +96,7 @@ func TestCount(t *testing.T) {
 	t.Run("Accounts", testAccountsCount)
 	t.Run("Deposits", testDepositsCount)
 	t.Run("Promotions", testPromotionsCount)
+	t.Run("PromotionTasks", testPromotionTasksCount)
 	t.Run("Rewards", testRewardsCount)
 	t.Run("Withdrawals", testWithdrawalsCount)
 }
@@ -98,6 +108,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Deposits", testDepositsInsertWhitelist)
 	t.Run("Promotions", testPromotionsInsert)
 	t.Run("Promotions", testPromotionsInsertWhitelist)
+	t.Run("PromotionTasks", testPromotionTasksInsert)
+	t.Run("PromotionTasks", testPromotionTasksInsertWhitelist)
 	t.Run("Rewards", testRewardsInsert)
 	t.Run("Rewards", testRewardsInsertWhitelist)
 	t.Run("Withdrawals", testWithdrawalsInsert)
@@ -109,6 +121,7 @@ func TestInsert(t *testing.T) {
 func TestToOne(t *testing.T) {
 	t.Run("DepositToAccountUsingUser", testDepositToOneAccountUsingUser)
 	t.Run("PromotionToAccountUsingCreator", testPromotionToOneAccountUsingCreator)
+	t.Run("PromotionTaskToPromotionUsingPromotion", testPromotionTaskToOnePromotionUsingPromotion)
 	t.Run("RewardToPromotionUsingPromotion", testRewardToOnePromotionUsingPromotion)
 	t.Run("RewardToAccountUsingUser", testRewardToOneAccountUsingUser)
 	t.Run("WithdrawalToAccountUsingUser", testWithdrawalToOneAccountUsingUser)
@@ -125,6 +138,7 @@ func TestToMany(t *testing.T) {
 	t.Run("AccountToCreatorPromotions", testAccountToManyCreatorPromotions)
 	t.Run("AccountToUserRewards", testAccountToManyUserRewards)
 	t.Run("AccountToUserWithdrawals", testAccountToManyUserWithdrawals)
+	t.Run("PromotionToPromotionTasks", testPromotionToManyPromotionTasks)
 	t.Run("PromotionToRewards", testPromotionToManyRewards)
 }
 
@@ -133,6 +147,7 @@ func TestToMany(t *testing.T) {
 func TestToOneSet(t *testing.T) {
 	t.Run("DepositToAccountUsingUserDeposits", testDepositToOneSetOpAccountUsingUser)
 	t.Run("PromotionToAccountUsingCreatorPromotions", testPromotionToOneSetOpAccountUsingCreator)
+	t.Run("PromotionTaskToPromotionUsingPromotionTasks", testPromotionTaskToOneSetOpPromotionUsingPromotion)
 	t.Run("RewardToPromotionUsingRewards", testRewardToOneSetOpPromotionUsingPromotion)
 	t.Run("RewardToAccountUsingUserRewards", testRewardToOneSetOpAccountUsingUser)
 	t.Run("WithdrawalToAccountUsingUserWithdrawals", testWithdrawalToOneSetOpAccountUsingUser)
@@ -157,6 +172,7 @@ func TestToManyAdd(t *testing.T) {
 	t.Run("AccountToCreatorPromotions", testAccountToManyAddOpCreatorPromotions)
 	t.Run("AccountToUserRewards", testAccountToManyAddOpUserRewards)
 	t.Run("AccountToUserWithdrawals", testAccountToManyAddOpUserWithdrawals)
+	t.Run("PromotionToPromotionTasks", testPromotionToManyAddOpPromotionTasks)
 	t.Run("PromotionToRewards", testPromotionToManyAddOpRewards)
 }
 
@@ -172,6 +188,7 @@ func TestReload(t *testing.T) {
 	t.Run("Accounts", testAccountsReload)
 	t.Run("Deposits", testDepositsReload)
 	t.Run("Promotions", testPromotionsReload)
+	t.Run("PromotionTasks", testPromotionTasksReload)
 	t.Run("Rewards", testRewardsReload)
 	t.Run("Withdrawals", testWithdrawalsReload)
 }
@@ -180,6 +197,7 @@ func TestReloadAll(t *testing.T) {
 	t.Run("Accounts", testAccountsReloadAll)
 	t.Run("Deposits", testDepositsReloadAll)
 	t.Run("Promotions", testPromotionsReloadAll)
+	t.Run("PromotionTasks", testPromotionTasksReloadAll)
 	t.Run("Rewards", testRewardsReloadAll)
 	t.Run("Withdrawals", testWithdrawalsReloadAll)
 }
@@ -188,6 +206,7 @@ func TestSelect(t *testing.T) {
 	t.Run("Accounts", testAccountsSelect)
 	t.Run("Deposits", testDepositsSelect)
 	t.Run("Promotions", testPromotionsSelect)
+	t.Run("PromotionTasks", testPromotionTasksSelect)
 	t.Run("Rewards", testRewardsSelect)
 	t.Run("Withdrawals", testWithdrawalsSelect)
 }
@@ -196,6 +215,7 @@ func TestUpdate(t *testing.T) {
 	t.Run("Accounts", testAccountsUpdate)
 	t.Run("Deposits", testDepositsUpdate)
 	t.Run("Promotions", testPromotionsUpdate)
+	t.Run("PromotionTasks", testPromotionTasksUpdate)
 	t.Run("Rewards", testRewardsUpdate)
 	t.Run("Withdrawals", testWithdrawalsUpdate)
 }
@@ -204,6 +224,7 @@ func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Accounts", testAccountsSliceUpdateAll)
 	t.Run("Deposits", testDepositsSliceUpdateAll)
 	t.Run("Promotions", testPromotionsSliceUpdateAll)
+	t.Run("PromotionTasks", testPromotionTasksSliceUpdateAll)
 	t.Run("Rewards", testRewardsSliceUpdateAll)
 	t.Run("Withdrawals", testWithdrawalsSliceUpdateAll)
 }

@@ -4,15 +4,17 @@
 package models
 
 var TableNames = struct {
-	Account    string
-	Deposit    string
-	Promotion  string
-	Reward     string
-	Withdrawal string
+	Account       string
+	Deposit       string
+	Promotion     string
+	PromotionTask string
+	Reward        string
+	Withdrawal    string
 }{
-	Account:    "account",
-	Deposit:    "deposit",
-	Promotion:  "promotion",
-	Reward:     "reward",
-	Withdrawal: "withdrawal",
+	Account:       "account",
+	Deposit:       "deposit",
+	Promotion:     "promotion",
+	PromotionTask: "promotion_task",
+	Reward:        "reward",
+	Withdrawal:    "withdrawal",
 }

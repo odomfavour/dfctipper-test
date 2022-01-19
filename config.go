@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/caarlos0/env"
@@ -12,17 +14,22 @@ import (
 )
 
 const (
-	defaultConfigFilename = "dfctipper.conf"
-	sampleConfigFileName  = "./sample-dfctipper.conf"
-	defaultLogFilename    = "coinzion.log"
-	defaultDataDirname    = "data"
-	defaultLogLevel       = "info"
-	defaultLogDirname     = "logs"
-	defaultDbHost         = "0.0.0.0"
-	defaultDbPort         = "5432"
-	defaultDbUser         = "postgres"
-	defaultDbPass         = "postgres"
-	defaultDbName         = "coinzion"
+	defaultConfigFilename     = "dfctipper.conf"
+	sampleConfigFileName      = "./sample-dfctipper.conf"
+	defaultLogFilename        = "coinzion.log"
+	defaultDataDirname        = "data"
+	defaultLogLevel           = "info"
+	defaultLogDirname         = "logs"
+	defaultDbHost             = "0.0.0.0"
+	defaultDbPort             = "5432"
+	defaultDbUser             = "postgres"
+	defaultDbPass             = "postgres"
+	defaultDbName             = "coinzion"
+	defaultAPIProto           = "http"
+	defaultHost               = "0.0.0.0"
+	defaultPort               = "7070"
+	defaultServerHeader       = "dfctipper"
+	defaultCacheControlMaxAge = 86400
 )
 
 var (
@@ -64,6 +71,16 @@ type config struct {
 	BSCNode          string `long:"MAINNET_NODE_ADDRESS" env:"MAINNET_NODE_ADDRESS"`
 	MasterAddressKey string `long:"MASTER_ADDRESS_KEY" env:"MASTER_ADDRESS_KEY"`
 	MasterAddress    string `long:"MASTER_ADDRESS" env:"MASTER_ADDRESS"`
+
+	// EMAIL
+	MailgunDomain string `long:"mailgudomain" env:"MAILGUNDOMAIN"`
+	MailgunAPIKey string `long:"mailgunapikey" env:"MAILGUNAPIKEY"`
+
+	// API/server
+	APIProto           string `long:"apiproto" description:"Protocol for API (http or https)" env:"PDANALYTICS_ENABLE_HTTPS"`
+	APIListen          string `long:"apilisten" description:"Listen address for API. default localhost:7777, :17778 testnet, :17779 simnet" env:"PDANALYTICS_LISTEN_URL"`
+	ServerHeader       string `long:"server-http-header" description:"Set the HTTP response header Server key value. Valid values are \"off\", \"version\", or a custom string."`
+	CacheControlMaxAge int    `long:"cachecontrol-maxage" description:"Set CacheControl in the HTTP response header to a value in seconds for clients to cache the response. This applies only to FileServer routes." env:"DCRDATA_MAX_CACHE_AGE"`
 }
 
 func defaultConfig() config {
@@ -79,9 +96,44 @@ func defaultConfig() config {
 		MaxLogZips: defaultMaxLogZips,
 		ConfigFile: defaultConfigFile,
 		DebugLevel: defaultLogLevel,
+
+		APIProto:           defaultAPIProto,
+		CacheControlMaxAge: defaultCacheControlMaxAge,
+		ServerHeader:       defaultServerHeader,
 	}
 
 	return cfg
+}
+
+// normalizeNetworkAddress checks for a valid local network address format and
+// adds default host and port if not present. Invalidates addresses that include
+// a protocol identifier.
+func normalizeNetworkAddress(a, defaultHost, defaultPort string) (string, error) {
+	if strings.Contains(a, "://") {
+		return a, fmt.Errorf("Address %s contains a protocol identifier, which is not allowed", a)
+	}
+	if a == "" {
+		return defaultHost + ":" + defaultPort, nil
+	}
+	host, port, err := net.SplitHostPort(a)
+	if err != nil {
+		if strings.Contains(err.Error(), "missing port in address") {
+			normalized := a + ":" + defaultPort
+			host, port, err = net.SplitHostPort(normalized)
+			if err != nil {
+				return a, fmt.Errorf("Unable to address %s after port resolution: %v", normalized, err)
+			}
+		} else {
+			return a, fmt.Errorf("Unable to normalize address %s: %v", a, err)
+		}
+	}
+	if host == "" {
+		host = defaultHost
+	}
+	if port == "" {
+		port = defaultPort
+	}
+	return host + ":" + port, nil
 }
 
 // loadConfig initializes and parses the config using a config file and command
@@ -135,6 +187,26 @@ func loadConfig() (*config, error) {
 	if preCfg.ShowVersion {
 		fmt.Printf("%s version 1.0 (Go version %s)\n", appName, runtime.Version())
 		os.Exit(0)
+	}
+
+	port := defaultPort
+	log.Info("Env $PORT :", os.Getenv("PORT"))
+	if os.Getenv("PORT") != "" {
+		_, err = strconv.Atoi(os.Getenv("PORT"))
+		if err != nil {
+			log.Critical(err)
+			log.Critical("$PORT must be set")
+		}
+		port = os.Getenv("PORT")
+	}
+	// Check the supplied APIListen address
+	if cfg.APIListen == "" {
+		cfg.APIListen = defaultHost + ":" + port
+	} else {
+		cfg.APIListen, err = normalizeNetworkAddress(cfg.APIListen, defaultHost, port)
+		if err != nil {
+			return loadConfigError(err)
+		}
 	}
 
 	return &cfg, nil

@@ -353,6 +353,84 @@ func testPromotionsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testPromotionToManyPromotionTasks(t *testing.T) {
+	var err error
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Promotion
+	var b, c PromotionTask
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, promotionDBTypes, true, promotionColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Promotion struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, promotionTaskDBTypes, false, promotionTaskColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, promotionTaskDBTypes, false, promotionTaskColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	b.PromotionID = a.ID
+	c.PromotionID = a.ID
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.PromotionTasks().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.PromotionID == b.PromotionID {
+			bFound = true
+		}
+		if v.PromotionID == c.PromotionID {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := PromotionSlice{&a}
+	if err = a.L.LoadPromotionTasks(ctx, tx, false, (*[]*Promotion)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.PromotionTasks); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.PromotionTasks = nil
+	if err = a.L.LoadPromotionTasks(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.PromotionTasks); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
 func testPromotionToManyRewards(t *testing.T) {
 	var err error
 	ctx := context.Background()
@@ -431,6 +509,81 @@ func testPromotionToManyRewards(t *testing.T) {
 	}
 }
 
+func testPromotionToManyAddOpPromotionTasks(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Promotion
+	var b, c, d, e PromotionTask
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, promotionDBTypes, false, strmangle.SetComplement(promotionPrimaryKeyColumns, promotionColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*PromotionTask{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, promotionTaskDBTypes, false, strmangle.SetComplement(promotionTaskPrimaryKeyColumns, promotionTaskColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*PromotionTask{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddPromotionTasks(ctx, tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.ID != first.PromotionID {
+			t.Error("foreign key was wrong value", a.ID, first.PromotionID)
+		}
+		if a.ID != second.PromotionID {
+			t.Error("foreign key was wrong value", a.ID, second.PromotionID)
+		}
+
+		if first.R.Promotion != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Promotion != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.PromotionTasks[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.PromotionTasks[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.PromotionTasks().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
 func testPromotionToManyAddOpRewards(t *testing.T) {
 	var err error
 

@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/ademuanthony/dfctipper/app"
+	"github.com/ademuanthony/dfctipper/web"
 	"github.com/decred/slog"
 )
 
@@ -37,17 +38,20 @@ var (
 
 	log     = backendLog.Logger("DFCT")
 	homeLog = backendLog.Logger("APPL")
+	webLog = backendLog.Logger("WLOG")
 )
 
 // Initialize package-global logger variables.
 func init() {
 	app.UseLogger(homeLog)
+	web.UseLogger(webLog)
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
 var subsystemLoggers = map[string]slog.Logger{
 	"DFCT": log,
 	"APPL": homeLog,
+	"WLOG": webLog,
 }
 
 // initLogRotator initializes the logging rotater to write logs to logFile and
