@@ -34,6 +34,16 @@ func (pg *PgDb) GetUser(ctx context.Context, id string) (*models.Account, error)
 	return models.Accounts(models.AccountWhere.ID.EQ(id)).One(ctx, pg.db)
 }
 
+func (pg *PgDb) TotalAccounts(ctx context.Context) (int64, error) {
+	return models.Accounts().Count(ctx, pg.db)
+}
+
+func (pg *PgDb) VerifiedAccounts(ctx context.Context) (int64, error) {
+	return models.Accounts(
+		models.AccountWhere.TwitterID.GT(0),
+	).Count(ctx, pg.db)
+}
+
 func (pg *PgDb) ActiveUsersTelegram(ctx context.Context) (models.AccountSlice, error) {
 	return models.Accounts(
 		models.AccountWhere.Active.EQ(1),

@@ -18,6 +18,8 @@ type Store interface {
 	SetWalletAddress(ctx context.Context, telegramId int64, wallet string) error
 	SetBalance(ctx context.Context, userID string, balance int64) error
 	IncreaseDownlines(ctx context.Context, accID string) error
+	TotalAccounts(context.Context) (int64, error)
+	VerifiedAccounts(context.Context) (int64, error)
 
 	SetCurrentStep(ctx context.Context, telegramID int64, step int) error
 	CurrentStep(ctx context.Context, telegramID int64) (int, error)

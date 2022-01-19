@@ -26,11 +26,18 @@ func (a app) homePage(w http.ResponseWriter, r *http.Request) {
 
 func (a app) advertiser(w http.ResponseWriter, r *http.Request) {
 
+	totalAccounts, _ := a.db.TotalAccounts(r.Context())
+	verifiedAccounts, _ := a.db.VerifiedAccounts(r.Context())
+
 	data := struct {
 		*web.CommonPageData
-		BreadcrumbItems []web.BreadcrumbItem
+		BreadcrumbItems  []web.BreadcrumbItem
+		TotalAccounts    int64
+		VerifiedAccounts int64
 	}{
-		CommonPageData: a.server.CommonData(w, r),
+		CommonPageData:   a.server.CommonData(w, r),
+		TotalAccounts:    totalAccounts,
+		VerifiedAccounts: verifiedAccounts,
 		BreadcrumbItems: []web.BreadcrumbItem{
 			{
 				HyperText: "Home",
