@@ -93,10 +93,15 @@ func (a *app) initWeb() error {
 		return fmt.Errorf("AddTemplate: %v", err)
 	}
 
+	if err := a.server.Templates.AddTemplate("advertiser-thankyou"); err != nil {
+		return fmt.Errorf("AddTemplate: %v", err)
+	}
+
 	log.Info("adding web routes")
 	a.server.AddRoute("/", web.GET, a.homePage)
 	a.server.AddRoute("/advertiser", web.GET, a.advertiser)
 	a.server.AddRoute("/contactpostback", web.POST, a.contactPostBack)
+	a.server.AddRoute("/thankyou", web.GET, a.advertiserThankyou)
 
 	return nil
 }

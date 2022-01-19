@@ -1,0 +1,39 @@
+{{define "advertiser-thankyou"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "html-head" "DFCTipper - Reach millions of crypto lovers on twitter with ease"}}
+
+    <body id="top">
+    {{template "navbar" .}}
+
+
+       <!-- Intro -->
+       <div  class="welcome-stage-advertiser">
+        <div class="container">
+            <div id="mainSliderArea" class="owl-carousel owl-theme">
+                <div class="item">
+                    <div class="row d-flex align-items-center">
+                
+                        <div class="col-12 col-lg-6 push-lg-6">
+                            <img src="assets/img/dfc-tipper-img.png" id="bot-image"
+                                class="img-fluid bouncing bounce" alt="DFC Tipper Bot">
+                        </div>
+                        <div class="col-12 col-lg-6 p-3">
+                            <h1>Thank you for choosing <span class='yellow-span'>DFC TIPER!</span></h1>
+                            <p>You will receive an email from marketing@deficonnect.tech</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+
+
+    {{template "footer" .}}
+    </body>
+
+</html>
+{{end}}

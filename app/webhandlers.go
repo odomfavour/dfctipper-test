@@ -63,7 +63,25 @@ func (a app) contactPostBack(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("SendEmail", err)
 		web.NotifyError(w, "Error is sending message. Please contact marketing@deficonnect.tech")
 	} else {
-		web.NotifySuccess(w, "Message sent")
+		http.Redirect(w, r, "/thankyou", http.StatusSeeOther)
+		return
 	}
-	http.Redirect(w, r, "/advertiser", http.StatusSeeOther)
+	http.Redirect(w, r, "/advertiserThankyou", http.StatusSeeOther)
+}
+
+func (a app) advertiserThankyou(w http.ResponseWriter, r *http.Request) {
+
+	data := struct {
+		*web.CommonPageData
+		BreadcrumbItems []web.BreadcrumbItem
+	}{
+		CommonPageData: a.server.CommonData(w, r),
+		BreadcrumbItems: []web.BreadcrumbItem{
+			{
+				HyperText: "Home",
+				Active:    true,
+			},
+		},
+	}
+	web.RenderHTML("advertiser-thankyou", w, r, data, a.server)
 }
