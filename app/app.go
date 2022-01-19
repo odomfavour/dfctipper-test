@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ademuanthony/dfctipper/postgres/models"
+	"github.com/ademuanthony/dfctipper/web"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
@@ -22,47 +23,80 @@ const (
 type app struct {
 	db            Store
 	twitterClient *twitter.Client
+	server        *web.Server
 	b             *tb.Bot
 	client        *ethclient.Client
 	config        BlockchainConfig
+
+	MgDomain string
+	MgKey    string
 }
 
-func Start(ctx context.Context, db Store, twitterClient *twitter.Client,
-	client *ethclient.Client, cfg BlockchainConfig, b *tb.Bot) error {
+func Start(ctx context.Context, server *web.Server, db Store, twitterClient *twitter.Client,
+	client *ethclient.Client, cfg BlockchainConfig, b *tb.Bot, mgDomain, mgKey string) error {
 
-	app := &app{db: db, twitterClient: twitterClient, b: b, client: client, config: cfg}
+	app := &app{db: db, twitterClient: twitterClient,
+		server: server, b: b, client: client, config: cfg,
+		MgDomain: mgDomain,
+		MgKey:    mgKey,
+	}
 
-	buildMenuItems(b)
+	app.initBot()
 
-	b.Handle("/start", app.startHandler)
-	b.Handle("/ajah", app.startCreatePromotion)
-	b.Handle(tb.OnText, app.wrapHandler(app.textHandler))
-	b.Handle(&btnMyAccount, app.wrapHandler(app.myAccountMenu))
-	b.Handle(&btnSettings, app.wrapHandler(app.mySettingMenu))
-	b.Handle(&btnBackToMenu, app.wrapHandler(app.sendMainMenu))
-	b.Handle(&btnBackToMyAccount, app.wrapHandler(app.myAccountMenu))
-	b.Handle(&btnBackToMySetting, app.wrapHandler(app.mySettingMenu))
-	b.Handle(&btnAccountBalance, app.wrapHandler(app.accountBalance))
-	b.Handle(&btnWithdraw, app.wrapHandler(app.withdrawal))
-	b.Handle(&btnReferralLink, app.wrapHandler(app.referralLink))
-	b.Handle(&btnStartEarning, app.wrapHandler(app.viewTweet))
+	if err := app.initWeb(); err != nil {
+		return err
+	}
 
-	b.Handle(&btnWallet, app.wrapHandler(app.viewWallet))
-	b.Handle(&btnTwitter, app.wrapHandler(app.askforTwitter))
+	return nil
+}
+
+func (a *app) initBot() {
+	buildMenuItems(a.b)
+
+	a.b.Handle("/start", a.startHandler)
+	a.b.Handle("/ajah", a.startCreatePromotion)
+	a.b.Handle(tb.OnText, a.wrapHandler(a.textHandler))
+	a.b.Handle(&btnMyAccount, a.wrapHandler(a.myAccountMenu))
+	a.b.Handle(&btnSettings, a.wrapHandler(a.mySettingMenu))
+	a.b.Handle(&btnBackToMenu, a.wrapHandler(a.sendMainMenu))
+	a.b.Handle(&btnBackToMyAccount, a.wrapHandler(a.myAccountMenu))
+	a.b.Handle(&btnBackToMySetting, a.wrapHandler(a.mySettingMenu))
+	a.b.Handle(&btnAccountBalance, a.wrapHandler(a.accountBalance))
+	a.b.Handle(&btnWithdraw, a.wrapHandler(a.withdrawal))
+	a.b.Handle(&btnReferralLink, a.wrapHandler(a.referralLink))
+	a.b.Handle(&btnStartEarning, a.wrapHandler(a.viewTweet))
+
+	a.b.Handle(&btnWallet, a.wrapHandler(a.viewWallet))
+	a.b.Handle(&btnTwitter, a.wrapHandler(a.askforTwitter))
 
 	go func() {
 		for {
-			app.processReward()
+			a.processReward()
 			time.Sleep(30 * time.Second)
 		}
 	}()
 
 	go func() {
 		for {
-			app.processWithdrawals()
+			a.processWithdrawals()
 			time.Sleep(30 * time.Second)
 		}
 	}()
+}
+
+func (a *app) initWeb() error {
+	if err := a.server.Templates.AddTemplate("home"); err != nil {
+		return fmt.Errorf("AddTemplate: %v", err)
+	}
+
+	if err := a.server.Templates.AddTemplate("advertiser"); err != nil {
+		return fmt.Errorf("AddTemplate: %v", err)
+	}
+
+	log.Info("adding web routes")
+	a.server.AddRoute("/", web.GET, a.homePage)
+	a.server.AddRoute("/advertiser", web.GET, a.advertiser)
+	a.server.AddRoute("/contactpostback", web.POST, a.contactPostBack)
 
 	return nil
 }
