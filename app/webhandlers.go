@@ -58,7 +58,7 @@ func (a app) contactPostBack(w http.ResponseWriter, r *http.Request) {
 	title := "New Message From DFCTipper"
 	sender := "dfctipper@club250cent.com"
 
-	if err := a.SendEmail(r.Context(), sender, "info@deficonnect.tech", title,
+	if err := a.SendEmail(r.Context(), sender, "marketing@deficonnect.tech", title,
 		fmt.Sprintf(message, firstname, lastname, email, phone, twitterHandle)); err != nil {
 		log.Errorf("SendEmail", err)
 		web.NotifyError(w, "Error is sending message. Please contact marketing@deficonnect.tech")
