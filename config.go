@@ -76,6 +76,9 @@ type config struct {
 	MailgunDomain string `long:"mailgudomain" env:"MAILGUNDOMAIN"`
 	MailgunAPIKey string `long:"mailgunapikey" env:"MAILGUNAPIKEY"`
 
+	EnableWeb     string `long:"enableweb" env:"ENABLEWEB"`
+	EnableTwitter string `long:"enabletwitter" env:"ENABLETWITTER"`
+
 	// API/server
 	APIProto           string `long:"apiproto" description:"Protocol for API (http or https)" env:"PDANALYTICS_ENABLE_HTTPS"`
 	APIListen          string `long:"apilisten" description:"Listen address for API. default localhost:7777, :17778 testnet, :17779 simnet" env:"PDANALYTICS_LISTEN_URL"`

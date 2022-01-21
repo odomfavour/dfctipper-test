@@ -28,17 +28,23 @@ type app struct {
 	client        *ethclient.Client
 	config        BlockchainConfig
 
+	EnableWeb     bool
+	EnableTwitter bool
+
 	MgDomain string
 	MgKey    string
 }
 
 func Start(ctx context.Context, server *web.Server, db Store, twitterClient *twitter.Client,
-	client *ethclient.Client, cfg BlockchainConfig, b *tb.Bot, mgDomain, mgKey string) error {
+	client *ethclient.Client, cfg BlockchainConfig, b *tb.Bot, mgDomain, mgKey string, enableWeb, enableTwitter bool) error {
 
-	app := &app{db: db, twitterClient: twitterClient,
+	app := &app{
+		db: db, twitterClient: twitterClient,
 		server: server, b: b, client: client, config: cfg,
-		MgDomain: mgDomain,
-		MgKey:    mgKey,
+		MgDomain:      mgDomain,
+		MgKey:         mgKey,
+		EnableWeb:     enableWeb,
+		EnableTwitter: enableTwitter,
 	}
 
 	app.initBot()
@@ -69,12 +75,14 @@ func (a *app) initBot() {
 	a.b.Handle(&btnWallet, a.wrapHandler(a.viewWallet))
 	a.b.Handle(&btnTwitter, a.wrapHandler(a.askforTwitter))
 
-	go func() {
-		for {
-			a.processReward()
-			time.Sleep(30 * time.Second)
-		}
-	}()
+	if a.EnableTwitter {
+		go func() {
+			for {
+				a.processReward()
+				time.Sleep(30 * time.Second)
+			}
+		}()
+	}
 
 	go func() {
 		for {

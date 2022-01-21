@@ -11,6 +11,7 @@ import (
 	"github.com/ademuanthony/dfctipper/app"
 	"github.com/ademuanthony/dfctipper/postgres"
 	"github.com/ademuanthony/dfctipper/web"
+	"github.com/dghubble/go-twitter/twitter"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
@@ -61,11 +62,15 @@ func main() {
 		ConsumerSecret:    cfg.ConsumerSecret,
 	}
 
-	client, err := getClient(&creds)
-	if err != nil {
-		log.Error("Error getting Twitter Client")
-		log.Error(err)
-		return
+	var client *twitter.Client
+	if cfg.EnableTwitter == "1" {
+		client, err = getClient(&creds)
+
+		if err != nil {
+			log.Error("Error getting Twitter Client")
+			log.Error(err)
+			return
+		}
 	}
 
 	db, err := postgres.NewPgDb(cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPass, cfg.DBName, os.Getenv("DEBUG_SQL") == "1")
@@ -102,7 +107,7 @@ func main() {
 
 	if err := app.Start(ctx, webServer, db, client, ethClient, app.BlockchainConfig{
 		BSCNode: cfg.BSCNode, MasterAddressKey: cfg.MasterAddressKey, MasterAddress: cfg.MasterAddress,
-	}, b, cfg.MailgunDomain, cfg.MailgunAPIKey); err != nil {
+	}, b, cfg.MailgunDomain, cfg.MailgunAPIKey, cfg.EnableWeb == "1", cfg.EnableTwitter == "1"); err != nil {
 		log.Error(err)
 		return
 	}
